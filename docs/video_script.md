@@ -1,7 +1,7 @@
 # Guion del vídeo — DNT-Scout (3–5 min)
 
 **Para Fran.** Las líneas en `> cita` son lo que dices, **en inglés** (las bases piden inglés o
-chino). Todo lo demás son notas de producción en español. Duración objetivo **4:05**, dentro del
+chino). Todo lo demás son notas de producción en español. Duración objetivo **4:35**, dentro del
 margen de 3–5 min. Son unas 600 palabras habladas: a ritmo tranquilo salen 4 minutos justos, así
 que **no corras** — si te pasas de 4:30, corta el bloque 7 entero, está marcado como prescindible.
 
@@ -65,54 +65,60 @@ de la izquierda mientras hablas.
 **En pantalla:** el GIF `03_enrichment.gif`, a pantalla completa. Déjalo correr entero.
 
 > Here is the result. Testing in the order the model recommends, half the selective compounds are
-> found after **thirty-two** assays. In a random order it takes **fifty-two**.
+> found after **thirty-two** assays. In a random order it takes **fifty-one and a half**. Across two
+> hundred independent splits, thirty-three to thirty-four.
 >
 > That is about a third of the laboratory work removed. A perfect oracle would need twenty-five, so
 > we capture roughly three quarters of the gain that is available at all.
 >
-> In accuracy terms: ROC area **0.776**, with a ninety-five percent interval of 0.70 to 0.83, taken
-> as the median over twenty independent splits — not one lucky one.
+> In accuracy terms: ROC area **0.828** on our pre-declared split, and **0.776** as the median over
+> twenty others — I show you both, because they answer different questions.
 
 ---
 
-### 5 · ¿Es real?  `2:15 – 3:00`
+### 5 · ¿Es real? La auditoría independiente  `2:15 – 3:25`
 
 **En pantalla:** `results/figs/04_robustness.png`. Ve señalando panel a panel.
 
-> We tried hard to break this. Three things.
+> We tried hard to break this. And then somebody else did.
 >
-> One: our chance control sits at exactly **0.500**. It did not, at first — pooling five folds'
-> scores onto one scale put it at 0.473, and every metric inherited that bias. We found it, fixed
-> it, and wrote a test so it cannot come back.
+> A separate agent, which did not share our code, reproduced the whole evaluation from a frozen
+> commit. All one hundred and eighty-five numeric fields match. A re-implementation written from
+> scratch agrees to five times ten to the minus seventeen. The labels, rebuilt independently from
+> the EPA spreadsheet, are a hundred and thirty-six out of a hundred and thirty-six identical.
 >
-> Two: read-across votes on measured analogues, so does it just memorise close relatives? We hid
-> every analogue above a similarity cap. At 0.7 the score is 0.820. At 0.5, 0.799. It is not
-> memorisation.
+> And then the test that matters. **Nine hundred and ninety-nine label permutations**, swapping
+> labels between scaffolds of equal size, and refitting the folds, the model selection and the
+> predictions every single time. **Not one of them reached our result. p equals 0.001.**
 >
-> Three: a harder split, holding out whole chemical clusters. Performance drops to 0.74 — still far
-> above chance, but the three model families converge. So: read-across being the *best* model is
-> specific to one split. Structure carrying real signal is not.
+> Our own attacks held too. Read-across votes on measured analogues — so does it just memorise
+> close relatives? We hid every analogue above a similarity cap: at 0.7, the score is 0.820; at
+> 0.5, 0.799. It is not memorisation. And on a harder split, holding out whole chemical clusters,
+> performance drops to 0.74 — still far above chance, but the three model families converge. So
+> read-across being the *best* model is specific to one split. Structure carrying real signal
+> is not.
 
 *(Nota: este bloque es el que más puntúa con un jurado de IA fiable. No lo recortes.)*
 
 ---
 
-### 6 · Saber decir «no lo sé»  `3:00 – 3:25`
+### 6 · Saber decir «no lo sé»  `3:25 – 3:50`
 
 **En pantalla:** `results/figs/05_uncertainty.png`.
 
 > A triage tool that answers every question is not calibrated — it is guessing.
 >
-> Every prediction carries a conformal set at ninety percent confidence. We promised ninety; we
-> measured **89.2** on held-out scaffolds. The honest cost is that for sixty-three percent of
-> chemicals the set contains both outcomes, and nearly eight percent fall outside the applicability
-> domain altogether.
+> Every prediction carries a conformal set at ninety percent confidence. We promised ninety; the
+> structural forest measured **89.2** on held-out scaffolds, and the read-across that actually
+> ships measured **94.1** when the auditor checked it from the outside. The honest cost is that for
+> sixty-three percent of chemicals the set contains both outcomes, and nearly eight percent fall
+> outside the applicability domain altogether.
 >
 > Those are the queries where the correct output is a shrug. The tool gives one.
 
 ---
 
-### 7 · SciencePal  `3:25 – 3:55`  *(prescindible si vas largo)*
+### 7 · SciencePal  `3:50 – 4:25`  *(prescindible si vas largo)*
 
 **En pantalla:** EN DIRECTO, el proyecto de SciencePal. Enseña el agente corriendo y el informe que
 devuelve. **Esto es criterio de evaluación: que se vea la plataforma funcionando, no una captura.**
@@ -120,17 +126,22 @@ devuelve. **Esto es criterio de evaluación: que se vea la plataforma funcionand
 > The central decision does not happen in my repository. It happens here, inside SciencePal.
 >
 > The Biology Agent gets the hundred and two measured analogues, and twenty chemicals withheld from
-> every stage of fitting and calibration. It resolves each structure, finds the analogues, applies
-> the model, and returns a triage report.
+> every stage of fitting and calibration — and deliberately **not** our own answer, so it cannot
+> copy it. It runs our scoring script in its own sandbox, resolves each structure, and writes a
+> triage report.
 >
-> Nine of the twenty come back **undecided** — four have no single resolvable structure, five are
-> outside the domain. And none of the five it recommends carries a confident positive call either.
-> They are simply the chemicals with the strongest evidence. The agent says that, instead of
-> dressing a ranking up as a prediction.
+> Two things happened that the ranking alone could not do. PubChem was **blocked** from that
+> sandbox. The agent said so, instead of failing quietly, and went around it through CACTUS and the
+> EPA registry — recovering **doxylamine**, a salt our pipeline had thrown away, and the only one
+> of the twenty with a confident call. And it **overruled our ranking**, dropping oxytetracycline,
+> because its nearest measured analogue is tetracycline at point five zero — the highest similarity
+> anywhere in the set — and tetracycline shows no effect.
+>
+> I recomputed its three headline numbers myself before believing them. They reproduce exactly.
 
 ---
 
-### 8 · Cierre  `3:55 – 4:05`
+### 8 · Cierre  `4:25 – 4:35`
 
 **En pantalla:** la URL del repo, grande, y debajo la del proyecto de SciencePal.
 
@@ -148,7 +159,7 @@ devuelve. **Esto es criterio de evaluación: que se vea la plataforma funcionand
 
 - [ ] Duración entre 3:00 y 5:00
 - [ ] Se ve SciencePal **en funcionamiento**, no una captura estática
-- [ ] Se dice en voz alta el intervalo del ROC, no solo el punto
+- [ ] Se dicen en voz alta los dos ROC (0,828 predeclarado y 0,776 mediana) y el p = 0,001
 - [ ] Se dice en voz alta que no es un veredicto de seguridad
 - [ ] La URL del repo es legible a 720p
 - [ ] Audio sin picos; normalizar a −16 LUFS si tu editor lo permite
