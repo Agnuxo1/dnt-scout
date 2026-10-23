@@ -82,7 +82,7 @@ and returns a structured triage report with its refusals.
 
 ## 4b · The demo film
 
-The 3–5 minute demonstration video is produced entirely from this repository by
+The 3–5 minute demonstration video — **https://www.youtube.com/watch?v=uJkbKtojOMc** — is produced entirely from this repository by
 `video/tools/`, and its own credits are in `video/CREDITS.md`. The points that matter for this
 declaration:
 

@@ -9,6 +9,15 @@ evidence for. It is a triage tool for a laboratory queue, not a safety verdict.
 
 ![How DNT-Scout works](results/figs/01_pipeline.gif)
 
+### ▶ Watch the film — 3 min 17 s
+
+[![DNT-Scout — which chemicals deserve a neurotoxicity assay first?](results/figs/08_film_poster.png)](https://www.youtube.com/watch?v=uJkbKtojOMc)
+
+A short documentary on the question, the result and its limits, with the SciencePal agent running
+on screen. Every number in it is read from a file in this repository and logged, with its source,
+to [`video/numbers_onscreen.json`](video/numbers_onscreen.json) — and the film is built from this
+repository too, by [`video/tools/`](video/tools).
+
 <table>
 <tr><td><b>Headline</b></td><td><b>32</b> microelectrode-array runs instead of <b>51.5</b> to find half the selectively active compounds — about a third of the laboratory work removed, and 33–34 runs typically across 200 independent splits.</td></tr>
 <tr><td><b>Data</b></td><td>136 chemicals from the US EPA network-formation assay (Shafer et al. 2019), public domain, re-downloaded from source.</td></tr>

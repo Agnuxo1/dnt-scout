@@ -71,7 +71,7 @@ it performed when PubChem returned HTTP 403, and the triage report it produced.
 | | |
 |---|---|
 | **Project overview** | `docs/DNT-Scout_overview.pdf` — **5 pages exactly** (the build script fails if it ever runs longer). Covers the technical approach, innovation, validation, limitations and next steps, as the rules require. |
-| **Demo video** | `video/dnt_scout_film.mp4` — a 3:17 documentary short, 1920×1080, narrated, subtitled, built from this repository by `video/tools/`. Credits and licences in `video/CREDITS.md`. |
+| **Demo video** | **https://www.youtube.com/watch?v=uJkbKtojOMc** — a 3:17 documentary short, 1920×1080, narrated and subtitled, built from this repository by `video/tools/`. Credits and licences in `video/CREDITS.md`; master file at `video/dnt_scout_film_master.mp4`. |
 
 ## 04 · Originality and resource declaration
 
@@ -108,7 +108,8 @@ reproducible experiments. All five are available:
 
 ## Before submitting — checklist for Fran
 
-- [ ] Watch `video/dnt_scout_film.mp4` end to end and confirm you are happy with it (3:17, inside the 3–5 min window; it shows the real SciencePal run, not a screenshot)
+- [x] Film published at https://www.youtube.com/watch?v=uJkbKtojOMc (3:17, inside the 3–5 min window; shows the real SciencePal run)
+- [ ] Upload `video/subs_en.srt` to the video as the English subtitle track (optional — captions are already burned into the picture)
 - [ ] Confirm the SciencePal share link still resolves (it is revocable — do not revoke it)
 - [ ] Confirm the GitHub repository is still public
 - [ ] Attach `docs/DNT-Scout_overview.pdf` and `docs/resource_declaration.md`

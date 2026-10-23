@@ -1,0 +1,57 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Narr,DejaVu Sans,42,&H00F2F5F8,&H00F2F5F8,&HC8140E08,&H00000000,0,0,0,0,100,100,0,0,1,3,2,2,180,180,64,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:03.07,Narr,,0,0,0,,Tens of thousands of chemicals are in commerce.
+Dialogue: 0,0:00:03.35,0:00:08.19,Narr,,0,0,0,,A few hundred have been tested for their effect on\Nthe developing nervous system.
+Dialogue: 0,0:00:08.71,0:00:19.55,Narr,,0,0,0,,The modern alternative to an animal study is to grow cortical neurons on a microelectrode\Narray, and watch whether they organise themselves into a firing network.
+Dialogue: 0,0:00:19.83,0:00:21.09,Narr,,0,0,0,,It is faster.
+Dialogue: 0,0:00:21.37,0:00:25.16,Narr,,0,0,0,,It still costs days of culture, for every single compound.
+Dialogue: 0,0:00:25.68,0:00:29.74,Narr,,0,0,0,,So the binding question is not "is this chemical neurotoxic".
+Dialogue: 0,0:00:30.02,0:00:30.82,Narr,,0,0,0,,It is:
+Dialogue: 0,0:00:30.94,0:00:32.97,Narr,,0,0,0,,which ones go on the plate first?
+Dialogue: 0,0:00:33.80,0:00:35.08,Narr,,0,0,0,,First, the trap.
+Dialogue: 0,0:00:35.36,0:00:41.10,Narr,,0,0,0,,A chemical that simply kills the culture flattens every\Nelectrical measurement you can make.
+Dialogue: 0,0:00:41.38,0:00:45.36,Narr,,0,0,0,,Calling that neuroactive is how this kind of screen fools itself.
+Dialogue: 0,0:00:45.87,0:00:49.29,Narr,,0,0,0,,So the outcome is defined against viability.
+Dialogue: 0,0:00:49.57,0:00:56.50,Narr,,0,0,0,,A network effect counts only when it happens at least three-fold\Nbelow the concentration that kills the cells.
+Dialogue: 0,0:00:56.78,0:00:59.04,Narr,,0,0,0,,Forty-nine compounds qualify.
+Dialogue: 0,0:00:59.32,0:01:03.79,Narr,,0,0,0,,Twenty-eight are inconclusive, and we publish them as inconclusive.
+Dialogue: 0,0:01:04.62,0:01:06.14,Narr,,0,0,0,,From a structure alone:
+Dialogue: 0,0:01:06.26,0:01:14.78,Narr,,0,0,0,,standardise it, fingerprint it, and find its nearest measured relatives among\Na hundred and two chemicals whose answer we already know.
+Dialogue: 0,0:01:15.30,0:01:19.70,Narr,,0,0,0,,Their outcomes, weighted by chemical similarity, become a score.
+Dialogue: 0,0:01:19.98,0:01:24.77,Narr,,0,0,0,,A conformal prediction set turns that score into a statement of confidence.
+Dialogue: 0,0:01:25.05,0:01:29.91,Narr,,0,0,0,,And when the nearest relative is too distant to say\Nanything, the tool says nothing.
+Dialogue: 0,0:01:30.74,0:01:37.54,Narr,,0,0,0,,Test in the order the model recommends, and half the active\Ncompounds appear after thirty-two assays.
+Dialogue: 0,0:01:37.82,0:01:40.79,Narr,,0,0,0,,In a random order, fifty-one and a half.
+Dialogue: 0,0:01:41.07,0:01:45.43,Narr,,0,0,0,,Across two hundred independent splits, thirty-three to thirty-four.
+Dialogue: 0,0:01:45.95,0:01:47.65,Narr,,0,0,0,,Area under the curve:
+Dialogue: 0,0:01:47.77,0:01:55.36,Narr,,0,0,0,,zero point eight two eight on the pre-declared split, zero point\Nseven seven six as the median of twenty others.
+Dialogue: 0,0:01:55.88,0:02:02.39,Narr,,0,0,0,,This is a retrospective evaluation, on a cohort the agency\Ndeliberately enriched with suspects.
+Dialogue: 0,0:02:03.22,0:02:04.35,Narr,,0,0,0,,We attacked it.
+Dialogue: 0,0:02:04.63,0:02:06.33,Narr,,0,0,0,,Then somebody else did.
+Dialogue: 0,0:02:06.85,0:02:15.11,Narr,,0,0,0,,A separate agent, which never saw our code, rebuilt the labels from the agency\Nspreadsheet, and reimplemented the method from scratch.
+Dialogue: 0,0:02:15.39,0:02:16.34,Narr,,0,0,0,,Agreement:
+Dialogue: 0,0:02:16.46,0:02:19.32,Narr,,0,0,0,,five parts in ten to the seventeenth.
+Dialogue: 0,0:02:19.84,0:02:28.20,Narr,,0,0,0,,Then it shuffled the labels between chemical scaffolds, nine hundred and\Nninety-nine times, refitting everything on every shuffle.
+Dialogue: 0,0:02:28.72,0:02:31.29,Narr,,0,0,0,,Not one shuffle reached our result.
+Dialogue: 0,0:02:31.57,0:02:34.61,Narr,,0,0,0,,p equals zero point zero zero one.
+Dialogue: 0,0:02:35.44,0:02:38.86,Narr,,0,0,0,,The decision itself runs inside SciencePal.
+Dialogue: 0,0:02:39.14,0:02:47.14,Narr,,0,0,0,,The agent receives the measured analogues, twenty chemicals withheld from\Neverything, and our scoring code — and not our answer.
+Dialogue: 0,0:02:47.66,0:02:50.16,Narr,,0,0,0,,Its chemical database was blocked.
+Dialogue: 0,0:02:50.44,0:02:56.12,Narr,,0,0,0,,It said so, found another route, and recovered a\Ncompound our own pipeline had thrown away:
+Dialogue: 0,0:02:56.24,0:02:59.70,Narr,,0,0,0,,the only one of the twenty it could call with confidence.
+Dialogue: 0,0:03:00.53,0:03:03.21,Narr,,0,0,0,,This does not tell you a chemical is safe.
+Dialogue: 0,0:03:03.49,0:03:08.00,Narr,,0,0,0,,A negative result in a dish does not exclude harm in development.
+Dialogue: 0,0:03:08.52,0:03:11.17,Narr,,0,0,0,,It tells you which plate to run on Monday.
+Dialogue: 0,0:03:11.45,0:03:13.91,Narr,,0,0,0,,The five it chose are a prediction.
+Dialogue: 0,0:03:14.19,0:03:16.41,Narr,,0,0,0,,One experiment would settle them.
