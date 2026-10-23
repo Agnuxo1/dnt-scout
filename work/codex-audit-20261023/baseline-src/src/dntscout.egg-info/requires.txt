@@ -1,0 +1,9 @@
+rdkit
+scikit-learn
+numpy
+pandas
+pyarrow
+matplotlib
+
+[dev]
+pytest

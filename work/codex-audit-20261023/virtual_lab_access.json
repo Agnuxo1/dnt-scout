@@ -1,0 +1,10 @@
+{
+  "https://www.p2pclaw.com/api/agent/status": {
+    "error_type": "HTTPError",
+    "status": 403
+  },
+  "https://www.p2pclaw.com/api/health": {
+    "error_type": "HTTPError",
+    "status": 403
+  }
+}

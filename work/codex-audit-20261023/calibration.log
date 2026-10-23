@@ -1,0 +1,144 @@
+{
+  "scope": "Retrospective exterior validation, original 102-chemical endpoint; original ranking result unchanged",
+  "original_export": "k=3 LOO quantiles within each outer training set, not forest coverage",
+  "candidate": "scaffold-disjoint fit/calibration before hyperparameter selection, conservative small-sample quantiles, same reference for domain",
+  "original_export_original_outer_split": {
+    "seed": 20261023,
+    "method": "original_export",
+    "coverage": 0.9411764705882353,
+    "coverage_0": 0.9245283018867925,
+    "coverage_1": 0.9591836734693877,
+    "uninformative": 0.6372549019607843,
+    "empty_set": 0.0,
+    "out_of_domain": 0.0980392156862745,
+    "fold_calibration": []
+  },
+  "corrected_candidate_original_outer_split": {
+    "seed": 20261023,
+    "method": "corrected_candidate",
+    "coverage": 0.9901960784313726,
+    "coverage_0": 0.9811320754716981,
+    "coverage_1": 1.0,
+    "uninformative": 0.9509803921568627,
+    "empty_set": 0.0,
+    "out_of_domain": 0.196078431372549,
+    "fold_calibration": [
+      {
+        "fold": 0,
+        "q": {
+          "0": 0.8325013514952652,
+          "1": 0.6863496782521956
+        },
+        "n_calibration_by_class": {
+          "0": 12,
+          "1": 9
+        }
+      },
+      {
+        "fold": 1,
+        "q": {
+          "0": 1.0,
+          "1": 1.0
+        },
+        "n_calibration_by_class": {
+          "0": 10,
+          "1": 11
+        }
+      },
+      {
+        "fold": 2,
+        "q": {
+          "0": 1.0,
+          "1": 1.0
+        },
+        "n_calibration_by_class": {
+          "0": 14,
+          "1": 7
+        }
+      },
+      {
+        "fold": 3,
+        "q": {
+          "0": 0.779972196922487,
+          "1": 1.0
+        },
+        "n_calibration_by_class": {
+          "0": 10,
+          "1": 11
+        }
+      },
+      {
+        "fold": 4,
+        "q": {
+          "0": 1.0,
+          "1": 1.0
+        },
+        "n_calibration_by_class": {
+          "0": 14,
+          "1": 7
+        }
+      }
+    ]
+  },
+  "repeat_20_new_seeds": {
+    "original_export": {
+      "coverage": {
+        "median": 0.9509803921568627,
+        "min": 0.9117647058823529,
+        "max": 0.9901960784313726
+      },
+      "coverage_0": {
+        "median": 0.9622641509433962,
+        "min": 0.9245283018867925,
+        "max": 0.9811320754716981
+      },
+      "coverage_1": {
+        "median": 0.9387755102040817,
+        "min": 0.8979591836734694,
+        "max": 1.0
+      },
+      "uninformative": {
+        "median": 0.75,
+        "min": 0.6176470588235294,
+        "max": 0.8333333333333334
+      },
+      "out_of_domain": {
+        "median": 0.11764705882352944,
+        "min": 0.07843137254901966,
+        "max": 0.1568627450980392
+      }
+    },
+    "corrected_candidate": {
+      "coverage": {
+        "median": 0.9558823529411764,
+        "min": 0.8627450980392157,
+        "max": 1.0
+      },
+      "coverage_0": {
+        "median": 0.9716981132075472,
+        "min": 0.8867924528301887,
+        "max": 1.0
+      },
+      "coverage_1": {
+        "median": 0.9591836734693877,
+        "min": 0.8367346938775511,
+        "max": 1.0
+      },
+      "uninformative": {
+        "median": 0.8627450980392157,
+        "min": 0.6666666666666666,
+        "max": 0.9803921568627451
+      },
+      "out_of_domain": {
+        "median": 0.16666666666666663,
+        "min": 0.11764705882352944,
+        "max": 0.23529411764705888
+      }
+    }
+  },
+  "checks": [
+    "finite-sample boundary m=0,1,9",
+    "calibration labels do not select hyperparameters or affect proper-fit confidence scores",
+    "all proper-fit/calibration scaffold groups disjoint"
+  ]
+}

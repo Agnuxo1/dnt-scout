@@ -234,3 +234,26 @@ def test_conformal_sets_are_distinct_objects():
            / "scripts" / "02_evaluate.py").read_text(encoding="utf-8")
     assert "[set()] * len(y)" not in src
     assert "[set() for _ in range(len(y))]" in src
+
+
+# ------------------------------------------------- the lower bound on an unfitted ratio
+
+
+def test_bound_selectivity_is_a_real_bound():
+    """A positive with no fitted cytotoxicity is only defensible if the top dose bounds it."""
+    from dntscout.labels import bound_selectivity
+    # network EC50 0.5 uM, nothing cytotoxic seen up to 20 uM -> at least 40-fold selective
+    assert bound_selectivity(0.5, 20.0) == pytest.approx(40.0)
+    # network EC50 18.4 uM against a 20 uM top dose bounds nothing useful
+    assert bound_selectivity(18.4, 20.0) < 3.0
+    assert np.isnan(bound_selectivity(0.0, 20.0))
+
+
+def test_selectivity_ratio_is_credited_not_claimed():
+    """Shafer et al. publish this ratio; the module must say so rather than imply novelty."""
+    from dntscout import labels
+    doc = labels.__dict__["__doc__"] or ""
+    src = (__import__("pathlib").Path(labels.__file__)).read_text(encoding="utf-8")
+    assert "Shafer" in src and "0.9995" in src, \
+        "the provenance of the selectivity ratio must stay in the source"
+    del doc

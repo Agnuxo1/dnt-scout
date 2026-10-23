@@ -1,0 +1,238 @@
+# DNT-Scout
+
+**Which untested chemicals deserve a microelectrode-array run — and when is the structural evidence too thin to say?**
+
+From a chemical structure alone, DNT-Scout ranks compounds by how likely they are to *selectively*
+disrupt the formation of neuronal networks in development, attaches a calibrated statement of
+confidence to each prediction, and refuses to answer when the chemistry is outside what it has
+evidence for. It is a triage tool for a laboratory queue, not a safety verdict.
+
+![How DNT-Scout works](results/figs/01_pipeline.gif)
+
+<table>
+<tr><td><b>Headline</b></td><td><b>32</b> microelectrode-array runs instead of <b>52</b> to find half the selectively active compounds — a third of the laboratory work removed, stable at 31–37 runs across 20 independent splits.</td></tr>
+<tr><td><b>Data</b></td><td>136 chemicals from the US EPA network-formation assay (Shafer et al. 2019), public domain, re-downloaded from source.</td></tr>
+<tr><td><b>Validation</b></td><td>Scaffold-held-out and chemical-cluster-held-out cross-validation, a chance control that lands at exactly 0.500, and a similarity cap that rules out memorised near-duplicates.</td></tr>
+<tr><td><b>Uncertainty</b></td><td>Mondrian conformal prediction at a nominal 90%; measured coverage 89.2%. The tool abstains on 63% of queries and says so.</td></tr>
+<tr><td><b>Licence</b></td><td>MIT (code) · the underlying EPA data are US Government work, public domain.</td></tr>
+</table>
+
+Built for the **2026 Global AI4Science Hackathon** (SciencePal × CityUHK × Tencent Cloud).
+Everything here is new work created during the event — see [Resource declaration](#resource-declaration).
+
+---
+
+## 1 · The problem
+
+Developmental neurotoxicity is among the most expensive endpoints in regulatory toxicology and one
+of the least covered: of the tens of thousands of chemicals in commerce, a few hundred have been
+through a developmental-neurotoxicity battery. The *in vitro* alternative — growing cortical
+neurons on a microelectrode array and watching whether they organise into a firing network — is
+faster than an animal study but still costs days of culture per compound. With the US EPA planning
+to phase out mammalian testing, the binding question becomes a scheduling question: **of the
+compounds nobody has tested, which ones go on the plate first?**
+
+That question has a precise, checkable answer: *how many assays do you have to run to find the
+actives?* It is the question this repository answers.
+
+## 2 · What counts as a hit
+
+A chemical that kills the culture flattens every electrophysiological parameter. Counting that as
+"neuroactive" is the main way a developmental-neurotoxicity screen fools itself, so the outcome
+used throughout is defined **against viability**, and the ambiguous cases stay visible instead of
+being quietly folded into the negative class.
+
+![The primary outcome](results/figs/02_endpoint.png)
+
+| Class | n | Used as |
+|---|---|---|
+| Selective effect on network formation | 49 | positive |
+| No effect observed in the tested range | 53 | negative |
+| Network effect only at cytotoxic concentrations | 28 | **reported, never a negative** |
+| Structure not modellable (mixture, inorganic, unresolved) | 6 | **reported** |
+
+Two honest notes that the figure makes explicit. First, 27 of the 49 positives have no fitted
+cytotoxicity EC50 at all, so for them the ≥3× rule was never the binding test — they are "the
+network responded and nothing toxic was seen in range". The other 22 clear the threshold by a
+measured margin (median 6.5×), and [the model finds both kinds](#4--is-the-result-real)
+(ROC 0.854 and 0.806 against the negatives). Second, the threshold is a choice, so the class
+counts at 1×, 3× and 10× are published together: 70 · 49 · 35.
+
+## 3 · The result
+
+![Enrichment curve](results/figs/03_enrichment.gif)
+
+Testing in the order the model recommends, **half the selective compounds are found after 32
+assays**. Testing in a random order takes 52 (51.4 on average, 95% range 41–61). A perfect oracle
+would need 25, so the ranking captures about three quarters of the gain that is available at all.
+
+| Model | ROC AUC | PR AUC | Assays for half the actives |
+|---|---|---|---|
+| Chance (control) | **0.500** | 0.480 | 52 |
+| Physicochemical descriptors | 0.750 | 0.635 | 36 |
+| **Read-across from measured analogues** | **0.828** | **0.780** | **32** |
+| Structural random forest | 0.766 | 0.674 | 36 |
+
+Single pre-declared split (seed 20261023). The chance control sits at exactly 0.500 by
+construction — see [the note on pooling](#a-note-on-pooling-across-folds), which is a real
+methodological trap this project walked into and climbed out of.
+
+## 4 · Is the result real?
+
+Three independent attempts to break it. None of them does, and the exercise sharpened what can
+honestly be claimed.
+
+![Robustness](results/figs/04_robustness.png)
+
+**One split is not evidence.** Repeating the entire evaluation over 20 fold assignments gives a
+median ROC of **0.776 (0.703–0.828)** for read-across. The pre-declared split happened to land at
+the optimistic end of that range, so 0.776 is the number to quote for accuracy. The *practical*
+figure barely moves: **32 assays, range 31–37**, against 52 for every split.
+
+**Is it memorising close relatives?** Read-across is a weighted vote of measured analogues, so the
+obvious worry is that it recognises near-duplicates rather than generalising. Hiding every training
+analogue above a similarity cap answers it: at a cap of 0.7, ROC 0.820; at 0.5, ROC 0.799. There
+was little to memorise in any case — the median nearest-analogue similarity across the set is 0.36,
+and only 4% of chemicals have an analogue above 0.9. The structural forest ignores the similarity
+matrix entirely and is flat across the cap, which is the internal control this panel needs.
+
+**A harder split.** 72% of Bemis-Murcko scaffold groups contain a single chemical, so
+scaffold-held-out is close to leave-one-out and is not the structural-novelty test its name
+suggests. Holding out whole Butina clusters at 0.6 similarity is harder, and performance falls to
+0.74–0.77 — still far above chance, but with the three model families converging. **Read-across
+being the best model is specific to the scaffold split; structure carrying real signal is not.**
+
+## 5 · Saying "I don't know"
+
+A triage tool that answers every question is not calibrated, it is guessing. Each prediction comes
+with a Mondrian (class-conditional) conformal set at a nominal 90% confidence, plus an
+applicability-domain check based on similarity to the nearest measured analogue.
+
+![Uncertainty](results/figs/05_uncertainty.png)
+
+Coverage is **measured on held-out scaffolds, not assumed**: 89.2% overall against the 90%
+promised, 87.8% on the selective class and 90.6% on the no-effect class. With 102 held-out
+chemicals the standard error on a coverage of 0.90 is about 3 points, so these agree with the
+promise. The honest cost is that the set is uninformative — it contains both outcomes — for 63% of
+chemicals, and 7.8% fall outside the applicability domain altogether. Those are the queries where
+the correct output is a shrug, and the tool gives one.
+
+## 6 · Scope, and what is outside it
+
+![Scope](results/figs/06_scope.png)
+
+The 28 chemicals whose network effect appears only at lethal concentrations are excluded from the
+primary comparison, and they are not a random 28: they carry 22 scaffolds that then appear nowhere
+in the modelled set, and they form a coherent mechanistic family — rotenone, valinomycin,
+tributyltin, five strobilurin fungicides, two statins, chlordane, endosulfan, MPP⁺. So the harder
+question is asked as well: **selective activity against everything else, cytotoxicants included.**
+Read-across scores **0.696 (0.595–0.784)** there, 44 assays against 65.5 at random. Lower, as it
+should be, and the interval still excludes chance.
+
+The model does rank many of those cytotoxicants highly, and that is worth reading carefully rather
+than as a failure. Permethrin sits at a selectivity ratio of 1.9×, rotenone at 2.1×, oxidopamine at
+2.8× — just under the three-fold line. A high score for them is the model correctly recognising
+real neuroactive chemistry; what structure alone does not resolve is the fine selectivity margin.
+In the EPA protocol viability is read from the same plate, so an assay spent on one of these still
+returns a usable answer.
+
+**What this tool is not.** It does not establish that a compound is safe. A negative *in vitro*
+result does not exclude developmental neurotoxicity — the OECD guidance says so directly — and
+nothing here should be read as a regulatory conclusion. The prevalence in this cohort is 48%
+because the EPA deliberately enriched it with suspected actives; the enrichment achievable on an
+unselected chemical library is not measured here and would be a different experiment.
+
+## 7 · The decision, on chemicals nobody has seen
+
+Twenty chemicals are drawn from the wider EPA screen and withheld from fitting, selection and
+calibration. The task is the one a laboratory actually faces: **name the five to run first, and say
+which ones you cannot judge.**
+
+![Agent decision](results/figs/07_agent.gif)
+
+Nine of the twenty come back undecided — four have no single resolvable structure, five are outside
+the applicability domain — and none of the five recommended carries a confident positive call
+either. They are the chemicals with the strongest analogue evidence, which is what a triage list
+is, and the tool reports it that way rather than dressing a ranking up as a prediction. Every score
+ships with its three nearest measured analogues and their outcomes, in
+[`results/agent_package/scores.csv`](results/agent_package/scores.csv), so the recommendation can
+be audited instead of trusted.
+
+## 8 · Reproduce it
+
+```bash
+git clone https://github.com/Agnuxo1/dnt-scout && cd dnt-scout
+python -m venv .venv && . .venv/bin/activate
+pip install -e ".[dev]"
+
+python scripts/01_build_dataset.py      # downloads EPA + PubChem, verifies SHA256
+python scripts/02_evaluate.py           # the table in section 3
+python scripts/audit_02_validity.py     # the robustness panels in section 4 (~15 min)
+python scripts/figures_core.py          # every figure in this README
+pytest -q                               # 21 tests
+```
+
+Raw data are **not** redistributed here: `01_build_dataset.py` fetches them from the original
+sources and checks them against the SHA256 manifest in
+[`docs/provenance.json`](docs/provenance.json). Nothing in this repository is downstream of a file
+you cannot re-fetch and verify yourself.
+
+### A note on pooling across folds
+
+Worth stating plainly, because it is a trap that is easy to fall into and invisible once you have.
+Cross-validation produces one model per fold, and nothing makes five models' probabilities
+comparable to each other. Pooling the raw scores into a single ranking therefore mixes five scales,
+and the damage is measurable: the prevalence baseline — a constant per fold, which *must* score
+chance — came out at ROC 0.473 when pooled raw. Every ranking metric in the project inherited that
+bias. Converting each score to its rank *within its own fold* puts the control back at exactly
+0.500 and lifts read-across from 0.803 to 0.828. Both numbers are reported side by side in
+[`results/evaluation.json`](results/evaluation.json), and a
+[regression test](tests/test_core.py) fails if the raw-pooled version ever becomes the headline
+again.
+
+## 9 · Method, in one paragraph
+
+Structures are resolved from PubChem by CASRN/DSSTox identifier, standardised with RDKit (salts
+stripped, charges neutralised, mixtures and inorganics flagged and excluded rather than coerced).
+Representations are Morgan fingerprints (2048 bits, radius 2), MACCS keys and ten physicochemical
+descriptors. Models are a prevalence control, L2 logistic regression on descriptors alone, a
+similarity-weighted k-nearest-analogue read-across of the kind US EPA GenRA is built on, and a
+random forest over the full feature matrix. Hyperparameters and the conformal calibration split are
+chosen by grouped cross-validation **inside each training fold**; the test fold is touched once, to
+predict. Confidence intervals resample whole scaffold groups, never individual chemicals. The
+conformal quantiles and the test scores they are applied to come from the same fitted model, which
+is what makes the coverage guarantee follow.
+
+## 10 · Limitations
+
+- **102 chemicals.** Every interval here is wide and the per-fold standard deviation of ROC is
+  0.108. This is a small-data problem and is reported as one.
+- **Cohort prevalence is 48%**, because the source cohort was enriched with suspected actives. The
+  assay saving does not transfer unchanged to an unselected library.
+- **Read-across's margin over the other models is split-dependent** (section 4).
+- **Concordance, not external validation.** All 136 labelled chemicals are inside the wider EPA
+  screen of 460, so the second dataset is a concordance check between cohorts, not an independent
+  test set. It is reported as such.
+- **One assay, one laboratory, one developmental window.** Network formation in rat cortical
+  cultures is a model of a model.
+
+## Resource declaration
+
+| | |
+|---|---|
+| **Created during the event** | All code in `src/` and `scripts/`, the outcome definition, every figure, every result, the agent package and this document. |
+| **Prior work by the author** | Francisco Angulo de Lafuente works on computational neuroscience and has a separate, unrelated project (NeuroChip Twin) entered in another competition. **No code, model, preprocessing, text, figure or video from that work is used here.** DNT-Scout is a clean-room project: new question, new repository, new code, written from scratch. |
+| **Third-party data** | US EPA network-formation assay, Shafer et al. 2019, ScienceHub DOI [10.23719/1503191](https://doi.org/10.23719/1503191) — US Government work, public domain. Structures from PubChem (public domain). Re-downloaded from source; SHA256 manifest in `docs/provenance.json`. |
+| **Third-party software** | RDKit (BSD-3), scikit-learn (BSD-3), NumPy, pandas, Matplotlib. No proprietary models, no paid APIs. |
+| **AI assistance** | Claude (Anthropic) was used as a programming and writing assistant throughout, under the author's direction. All scientific claims were checked against executed code; every number in this README is produced by a script in this repository. |
+| **Compute** | A single workstation and one Linux server with consumer GPUs. The models are small enough to train on a laptop; no GPU is required to reproduce anything here. |
+
+## Citation and licence
+
+Code is MIT-licensed (see [`LICENSE`](LICENSE)). The EPA data are public domain; if you use them,
+cite Shafer et al. 2019 directly.
+
+```
+Angulo de Lafuente, F. (2026). DNT-Scout: structure-based triage for developmental
+neurotoxicity screening, with calibrated abstention. https://github.com/Agnuxo1/dnt-scout
+```

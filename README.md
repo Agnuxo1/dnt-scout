@@ -51,12 +51,24 @@ being quietly folded into the negative class.
 | Network effect only at cytotoxic concentrations | 28 | **reported, never a negative** |
 | Structure not modellable (mixture, inorganic, unresolved) | 6 | **reported** |
 
-Two honest notes that the figure makes explicit. First, 27 of the 49 positives have no fitted
-cytotoxicity EC50 at all, so for them the ≥3× rule was never the binding test — they are "the
-network responded and nothing toxic was seen in range". The other 22 clear the threshold by a
-measured margin (median 6.5×), and [the model finds both kinds](#4--is-the-result-real)
-(ROC 0.854 and 0.806 against the negatives). Second, the threshold is a choice, so the class
-counts at 1×, 3× and 10× are published together: 70 · 49 · 35.
+**Credit where it is due.** The selectivity *ratio* is not ours: Shafer et al. publish a
+per-compound "Selectivity Score" which is exactly this quantity. Recomputing it here from the raw
+EC50 tables reproduces their published values — Pearson r = 0.9995 on log₁₀ across the 39 compounds
+that match by name, with o,p'-DDT at 244.398 in both. We use that agreement as a check that the
+data pipeline is right, not as a result. **What is ours** is turning the ratio into a binary
+outcome, keeping the chemicals it cannot classify in their own visible classes, and building a
+triage decision on top.
+
+**What "no cytotoxicity" really means.** 27 of the 49 positives have no fitted cytotoxicity EC50 at
+all, so for them the ≥3× rule was never the binding test. That is not the end of the matter: the
+top tested concentration is 20 µM throughout, which puts a *lower bound* on each ratio. **18 of the
+27 clear 3× on that bound**, so their selectivity is supported inside the tested range whatever the
+missing value would have been. The remaining **9 are genuinely indeterminate** — their network EC50
+sits at 7–18 µM, too close to the top dose to bound anything — and §4 re-runs the whole evaluation
+with those 9 removed. The other 22 positives clear the threshold by a directly measured margin
+(median 6.5×), and [the model finds both kinds](#4--is-the-result-real) (ROC 0.854 and 0.806
+against the negatives). Finally, the threshold is a choice, so the class counts at 1×, 3× and 10×
+are published together: 70 · 49 · 35.
 
 ## 3 · The result
 
@@ -157,6 +169,38 @@ is, and the tool reports it that way rather than dressing a ranking up as a pred
 ships with its three nearest measured analogues and their outcomes, in
 [`results/agent_package/scores.csv`](results/agent_package/scores.csv), so the recommendation can
 be audited instead of trusted.
+
+### The same task, run inside SciencePal
+
+**Live thread:** https://sciencepal.ai/projects/3a2ef4ae-6cf9-4ec7-9129-a43bd06963ba/thread/248df9d7-b3aa-4607-8e4c-c4de1a9abc5e
+
+The central step is executed inside the platform, not here: the SciencePal **Biology Agent** is
+given the same four files — and deliberately *not* given `scores.csv`, the answer above — then
+runs this project's scoring script in its own sandbox, resolves the structures, and writes a triage
+report. The pre-declared ablation (ranking alone versus ranking + agent) is in
+[`results/sciencepal/ABLATION.md`](results/sciencepal/ABLATION.md), with the agent's verbatim
+output in [`AGENT_REPORT.md`](results/sciencepal/AGENT_REPORT.md).
+
+| | ranking alone | ranking + agent |
+|---|---|---|
+| Candidates resolved to a structure | 16 / 20 | **19 / 20** |
+| Chemicals with a decisive 90% conformal set | 0 | **1** |
+| Refusals | 9, one bucket | 6, in **three distinct categories** |
+| Literature support | none | 4 DOI-cited mechanistic claims |
+
+Two things the ranking could not do on its own. PubChem was **IP-blocked** from the SciencePal
+sandbox; the agent said so instead of failing quietly, routed around it through NCI CACTUS and the
+EPA Substance Registry Service, and so recovered **doxylamine** — a salt the automated pipeline had
+discarded, and the only one of the twenty with a decisive conformal set (score 1.000). And it
+**overruled the ranking**, dropping oxytetracycline because its nearest measured analogue is
+tetracycline at T = 0.50 — the highest similarity anywhere in the candidate set — and tetracycline
+shows no effect, so the score was being propped up by two far weaker selective neighbours.
+
+Its three headline numbers were **recomputed here independently** before being reported
+([`scripts/verify_agent.py`](scripts/verify_agent.py)) and they reproduce exactly. What the
+ablation does *not* establish is set out plainly in `ABLATION.md`: the two arms did not face
+identical network conditions, no accuracy was measured because none of the twenty has a known
+outcome, and this is one run, not a benchmark.
 
 ## 8 · Reproduce it
 

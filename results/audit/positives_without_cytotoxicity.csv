@@ -1,0 +1,28 @@
+PREFERRED_NAME,Compound,ec50_network_min,top_dose,lower_bound_ratio,n_params_responding
+Benzo(a)pyrene,Benzo(a)pyrene,18.401675,20.0,1.0868575822581368,1
+Benz(a)anthracene,Benz(a)anthracene,18.307785,20.0,1.0924314437819758,1
+2-Ethylhexyl diphenyl phosphate,2-Ethylhexyl diphenyl phosphate,17.015496,20.0,1.175399177314608,1
+Molinate,Molinate,16.570043,20.0,1.2069974712799478,1
+Tris(2-chloroethyl) phosphate,Tris(2-chloroisopropyl) phosphate,14.028264,20.0,1.4256931577563696,1
+Eugenol,Eugenol,12.185119,20.0,1.6413463011727665,3
+Octylbicycloheptenedicarboximide,MGK 264,9.938654,20.0,2.012344931215032,4
+"Dibenz[a,c]anthracene","Dibenz[a,c] anthracene",7.746492,20.0,2.581813806817331,4
+Cariporide mesylate,Cariporide mesylate,7.240642,20.0,2.762186005053143,1
+17beta-Estradiol,Estradiol,5.429058,20.0,3.683880334304772,7
+Diphenhydramine hydrochloride,Diphenhydramine hydrochloride,4.735672,20.0,4.223265462641838,10
+Bis(2-ethylhexyl) tetrabromophthalate,Bis(2-ethylhexyl) tetrabromophthalate,4.694775,20.0,4.260055061211666,2
+Boscalid,Boscalid,4.259865,20.0,4.69498446547015,3
+"2,2-Bis(4-hydroxyphenyl)-1,1,1-trichloroethane","2,2-Bis(4-hydroxyphenyl)-1,1,1-trichloroethane",3.586056,20.0,5.577157746560567,14
+CP-457920,CP-457920,3.379092,20.0,5.918749770648446,4
+Resmethrin,Resmethrin,3.152329,20.0,6.344515436047443,2
+Enadoline,Enadoline,2.957252,20.0,6.763035412606028,13
+Folic acid,Folic acid,2.550696,20.0,7.840997123922255,3
+Difpas-pyrazole,FR140423,1.547386,20.0,12.925023232729261,12
+Bisphenol B,Bisphenol B,1.539885,20.0,12.987982868850596,9
+PharmaGSID_47330,PharmaGSID_47330,0.92084,20.0,21.71929976977542,11
+Benzo(b)fluoranthene,Benzo(b)fluoranthene,0.807998,20.0,24.752536516179497,9
+Allethrin,Allethrin,0.50824,20.0,39.35148748622698,6
+Prallethrin,Prallethrin,0.326844,20.0,61.19127167700799,9
+CP-409092,CP-409092,0.310025,20.0,64.5109265381824,12
+Cyfluthrin,Cyfluthrin,0.271544,20.0,73.65288866629349,17
+Esfenvalerate,Esfenvalerate,0.237103,20.0,84.35152655175176,17

@@ -1,0 +1,15 @@
+{
+  "objective": "Auditoria independiente de DNT-Scout solicitada por Fran",
+  "baseline_commit": "38b00be",
+  "facts": [
+    "Proyecto E:/Proyecto-concursos/sciencepal-neurotox identificado por cifras .828/.803",
+    "Original reproducido en servidor-ia con copia aislada; ROC .82768579, AP .780, 32 ensayos",
+    "21 tests pasan al desactivar carga automatica de plugins ajenos",
+    "API laboratorio P2PCLAW devuelve HTTP403",
+    "Trabajo de Claude cambia labels.py y tests concurrentemente; no modificar originales",
+    "Auditoria independiente exige diferencia de predicciones <1e-12 antes de nuevos experimentos"
+  ],
+  "artifacts": "E:\\Proyecto-concursos\\sciencepal-neurotox\\work\\codex-audit-20261023",
+  "next": "Finalizar 999 permutaciones y 200 particiones nuevas, verificar incertidumbre y preparar informe",
+  "updated_utc": "2026-10-23T16:51:07Z"
+}

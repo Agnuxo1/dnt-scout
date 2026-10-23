@@ -1,0 +1,11 @@
+{
+ "A_log_correlation": 0.9995006915420476,
+ "A_share_within_1pct": 0.9487179487179487,
+ "A_n_matched": 39,
+ "A_verdict": "SAME QUANTITY - the ratio is Shafer's; credit it, and claim only the binary label, the inconclusive classes and the triage system",
+ "B_n_no_cytotox": 27,
+ "B_bound_ge_3": 18,
+ "B_bound_ge_10": 9,
+ "B_bound_median": 5.234829852071468,
+ "B_top_network_ec50_observed": 18.772393
+}

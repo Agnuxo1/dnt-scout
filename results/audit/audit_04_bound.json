@@ -1,0 +1,19 @@
+{
+ "n_no_cytotox": 27,
+ "n_with_top_dose": 27,
+ "bound_ge_3": 18,
+ "bound_ge_10": 9,
+ "bound_lt_3": 9,
+ "bound_median": 5.577157746560567,
+ "indeterminate_names": [
+  "Octylbicycloheptenedicarboximide",
+  "Tris(2-chloroethyl) phosphate",
+  "2-Ethylhexyl diphenyl phosphate",
+  "Cariporide mesylate",
+  "Dibenz[a,c]anthracene",
+  "Molinate",
+  "Benzo(a)pyrene",
+  "Benz(a)anthracene",
+  "Eugenol"
+ ]
+}

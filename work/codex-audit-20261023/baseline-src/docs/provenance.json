@@ -1,0 +1,40 @@
+{
+ "built_utc": "2026-10-23T14:27:57Z",
+ "selectivity_fold": 3.0,
+ "inputs": {
+  "epa-shafer-2019-pasteur/NTP_TC_Analysis.zip": {
+   "sha256": "fd92c1339bb764ee9b96c935bf31867c12640505e5c3f065ad5956a7eea08cfb",
+   "bytes": 159560650
+  },
+  "epa-nfa-github/source_files/auc.data.with.spids.RData": {
+   "sha256": "74a33e2e418a4822ba02bba24dc315e2003c891227d3e6d9c95fb82077595536",
+   "bytes": 3117934
+  },
+  "epa-nfa-github/source_files/CCD-Batch-Search_2025-07-18_07_43_29.csv": {
+   "sha256": "4c7418951bcc35e6f97c71b018ce7d363d14b4dccc99cc637798ae7d00da4a8c",
+   "bytes": 52926
+  }
+ },
+ "pubchem": {
+  "endpoint": "https://pubchem.ncbi.nlm.nih.gov/rest/pug",
+  "properties": "ConnectivitySMILES,SMILES,InChIKey,MolecularFormula",
+  "resolved": 132,
+  "total": 136
+ },
+ "label_counts": {
+  "no_effect_observed": 53,
+  "selective": 49,
+  "inconclusive_cytotox": 28,
+  "inconclusive_other": 6
+ },
+ "overlap_audit": {
+  "labelled_chemicals": 136,
+  "wider_screen_chemicals": 460,
+  "overlap_by_identifier": 136,
+  "wider_screen_only": 324,
+  "note": "The wider screen (auc.dat) aggregates the same EPA laboratory's source files, including the ToxCast and NTP sets that the labelled summary is built from. It is therefore reported as cross-study concordance, not external validation."
+ },
+ "cross_run_concordance": {},
+ "chemicals_in_both_cohorts": 10,
+ "licence": "EPA data: public domain, US Government work. PubChem: public. Code: MIT, this repository."
+}

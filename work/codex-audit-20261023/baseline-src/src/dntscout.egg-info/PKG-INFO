@@ -1,0 +1,17 @@
+Metadata-Version: 2.4
+Name: dntscout
+Version: 0.1.0
+Summary: Structure-to-network developmental neurotoxicity triage with calibrated uncertainty
+Author: Francisco Angulo de Lafuente
+License: MIT
+Requires-Python: >=3.11
+License-File: LICENSE
+Requires-Dist: rdkit
+Requires-Dist: scikit-learn
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: pyarrow
+Requires-Dist: matplotlib
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Dynamic: license-file

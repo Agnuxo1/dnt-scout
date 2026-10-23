@@ -30,8 +30,17 @@ NETWORK_PARAMS = ("MFR", "BR", "ISI", "%SiB", "BD", "IBI", "#AE", "#ABE", "#NS",
                   "NSD", "%SiNS", "NS-ISI", "NSDsd", "#SiNS", "r", "MI")
 
 #: How much more potent the network effect must be than cytotoxicity to count as selective.
-#: 3-fold is the convention used in the MEA literature for separating specific neuroactivity from
-#: cell death; `sensitivity_to_fold` reports what happens at 1x and 10x instead.
+#:
+#: Credit where it is due: the *ratio* itself is not ours. Shafer et al. publish a per-compound
+#: "Selectivity Score" which is this same quantity, and recomputing it here from the raw EC50
+#: tables reproduces their published values (Pearson r = 0.9995 on log10 over the 39 compounds
+#: that can be matched by name; o,p'-DDT 244.398 in both). That agreement is used in this project
+#: as a check that the data pipeline is right, not as a new result.
+#:
+#: What is ours is what happens next: turning the ratio into a binary outcome at a 3-fold cut,
+#: keeping the chemicals it cannot classify in their own visible classes, and building a triage
+#: decision on top. 3-fold is the usual cut in the MEA literature for separating specific
+#: neuroactivity from cell death; `sensitivity_to_fold` reports 1x and 10x alongside it.
 SELECTIVITY_FOLD = 3.0
 
 SELECTIVE = "selective"
@@ -73,6 +82,10 @@ def classify(ec50_params: dict[str, float], ab_cytotox: float | None,
     if net_min is None:
         return Outcome(NO_EFFECT, None, viab_min, 0, None)
     if viab_min is None:
+        # No cytotoxicity EC50 was fitted. That is not the same as "no cytotoxicity": the curve
+        # may simply never have fallen far enough below the top dose. The ratio is recorded as
+        # infinite here, and `bound_selectivity` turns the top tested concentration into the
+        # lower bound that decides whether the claim is supported inside the tested range.
         return Outcome(SELECTIVE, net_min, None, len(vals), float("inf"))
     sel = viab_min / net_min
     label = SELECTIVE if sel >= fold else INCONCLUSIVE_CYTOTOX
@@ -105,3 +118,24 @@ def sensitivity_to_fold(df: pd.DataFrame, folds=(1.0, 3.0, 10.0), **kw) -> pd.Da
         out.append({"fold": f, **{k: int(lab.get(k, 0)) for k in
                                   (SELECTIVE, NO_EFFECT, INCONCLUSIVE_CYTOTOX, INCONCLUSIVE_OTHER)}})
     return pd.DataFrame(out)
+
+
+def bound_selectivity(ec50_network_min: float, top_tested_concentration: float) -> float:
+    """Lower bound on the selectivity ratio when no cytotoxicity EC50 was fitted.
+
+    Whatever the unfitted cytotoxic concentration is, it is above the highest dose that was
+    actually tested, so
+
+        ratio  >  top tested concentration / network EC50
+
+    and if that bound already clears the threshold, the selectivity claim holds inside the tested
+    range regardless of what the missing value would have been. If it does not, the ratio is
+    genuinely indeterminate and the chemical belongs in a sensitivity analysis, not in the
+    positive class without comment.
+
+    In this dataset the top dose is 20 uM throughout: 18 of the 27 positives with no fitted
+    cytotoxicity clear 3x on this bound, and 9 do not.
+    """
+    if not (ec50_network_min and ec50_network_min > 0):
+        return float("nan")
+    return float(top_tested_concentration) / float(ec50_network_min)
