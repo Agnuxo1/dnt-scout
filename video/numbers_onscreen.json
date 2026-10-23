@@ -1,0 +1,44 @@
+{
+ "results/audit/audit_01_data.json:selective_total:": {
+  "shown": "49",
+  "source": "results/audit/audit_01_data.json",
+  "path": "selective_total",
+  "raw": 49,
+  "where": "S2 counts"
+ },
+ "results/audit/audit_01_data.json:inconclusive_cytotox:": {
+  "shown": "28",
+  "source": "results/audit/audit_01_data.json",
+  "path": "inconclusive_cytotox",
+  "raw": 28,
+  "where": "S2 counts"
+ },
+ "results/audit/audit_02_validity.json:G_random_baseline.0.mean_assays:.1f": {
+  "shown": "51.4",
+  "source": "results/audit/audit_02_validity.json",
+  "path": "G_random_baseline.0.mean_assays",
+  "raw": 51.4386,
+  "where": "S4 random mean"
+ },
+ "results/evaluation.json:models.read_across.roc_auc:.3f": {
+  "shown": "0.828",
+  "source": "results/evaluation.json",
+  "path": "models.read_across.roc_auc",
+  "raw": 0.8276857912976512,
+  "where": "S5 observed label"
+ },
+ "results/audit/permutation_null.json:roc_rank.null_max:.3f": {
+  "shown": "0.759",
+  "source": "results/audit/permutation_null.json",
+  "path": "roc_rank.null_max",
+  "raw": 0.7585675779745861,
+  "where": "S5 null max"
+ },
+ "results/audit/permutation_null.json:roc_rank.p_value:.3f": {
+  "shown": "0.001",
+  "source": "results/audit/permutation_null.json",
+  "path": "roc_rank.p_value",
+  "raw": 0.001,
+  "where": "S5 p"
+ }
+}

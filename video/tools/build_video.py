@@ -58,6 +58,50 @@ def write_srt(narration: dict, path: Path):
     return offset
 
 
+def ass_time(t: float) -> str:
+    cs = int(round(max(t, 0.0) * 100))
+    h, cs = divmod(cs, 360_000)
+    m, cs = divmod(cs, 6_000)
+    s, cs = divmod(cs, 100)
+    return "%d:%02d:%02d.%02d" % (h, m, s, cs)
+
+
+def write_ass(narration: dict, path: Path) -> float:
+    """Subtitles as ASS, with the play resolution declared.
+
+    Burning an SRT makes ffmpeg assume a 384x288 reference frame, so a font size of 19 is scaled
+    by almost four on a 1080p picture: the captions come out enormous and halfway up the screen,
+    over the content. Declaring PlayResX/PlayResY means the numbers below are simply pixels —
+    42 px type, 64 px off the bottom, clear of the box the scenes keep free for it.
+    """
+    style = ("Style: Narr,DejaVu Sans,42,&H00F2F5F8,&H00F2F5F8,&HC8140E08,&H00000000,"
+             "0,0,0,0,100,100,0,0,1,3,2,2,180,180,64,1")
+    head = "\n".join([
+        "[Script Info]", "ScriptType: v4.00+", "PlayResX: %d" % vis.W, "PlayResY: %d" % vis.H,
+        "WrapStyle: 2", "ScaledBorderAndShadow: yes", "",
+        "[V4+ Styles]",
+        ("Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, "
+         "BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, "
+         "BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding"),
+        style, "",
+        "[Events]",
+        ("Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"), ""])
+    rows, offset = [], 0.0
+    for sid, _fn, _d in vis.SCENES:
+        sc = narration["scenes"][sid]
+        for cue in sc["cues"]:
+            txt = " ".join(cue["text"].split())
+            if len(txt) > 78:                     # two balanced lines, not one long one
+                cut = txt.rfind(" ", 0, len(txt) // 2 + 12)
+                if cut > 20:
+                    txt = txt[:cut] + r"\N" + txt[cut + 1:]
+            rows.append("Dialogue: 0,%s,%s,Narr,,0,0,0,,%s"
+                        % (ass_time(offset + cue["start"]), ass_time(offset + cue["end"]), txt))
+        offset += sc["duration"] + TAIL
+    path.write_text(head + "\n".join(rows) + "\n", encoding="utf-8")
+    return offset
+
+
 # ------------------------------------------------------------------------------------- the score
 def music_bed(seconds: float, seed: int = 20261023) -> np.ndarray:
     """A quiet synthesised pad. Written here in code so the film owes nothing to a music licence.
@@ -144,14 +188,12 @@ def assemble(narration: dict):
                 f.write("file '%s'\nduration %.6f\n" % (p.as_posix(), 1 / FPS))
         f.write("file '%s'\n" % p.as_posix())
 
-    srt = VIDEO / "subs_en.srt"
+    assf = VIDEO / "subs_en.ass"
     out = VIDEO / "dnt_scout_film.mp4"
     cmd = [FFMPEG, "-y", "-loglevel", "error", "-stats",
            "-f", "concat", "-safe", "0", "-i", str(lst),
            "-i", str(work / "mix.wav"),
-           "-vf", ("subtitles=%s:force_style='FontName=DejaVu Sans,FontSize=19,"
-                   "PrimaryColour=&H00F6F0EC,OutlineColour=&H90000000,BorderStyle=3,Outline=2,"
-                   "Shadow=0,MarginV=42'" % srt.as_posix().replace(":", r"\:")),
+           "-vf", "ass=%s" % assf.as_posix().replace(":", r"\:"),
            "-af", "loudnorm=I=-16:TP=-1.5:LRA=11",
            "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-pix_fmt", "yuv420p",
            "-r", str(FPS), "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(out)]
@@ -171,7 +213,8 @@ def main() -> None:
     if a.frames or a.all or a.scene:
         render_frames(narration, a.scene)
     if a.assemble or a.all:
-        total = write_srt(narration, VIDEO / "subs_en.srt")
+        total = write_srt(narration, VIDEO / "subs_en.srt")     # shipped alongside the file
+        write_ass(narration, VIDEO / "subs_en.ass")             # the one that gets burned in
         print("subtitles written, film runs %.1f s (%d:%02d)"
               % (total, int(total // 60), int(total % 60)))
         assemble(narration)
