@@ -25,7 +25,14 @@ Rules, which the evaluation of your answer depends on:
 Do not describe any chemical as safe. The question is only which assay to run next.
 
 Reference performance of the automated ranking alone, measured on held-out scaffolds
-(`evaluation.json`): read-across ROC AUC 0.80, enrichment
-factor at 20 assays 1.56
-(95% CI 1.21-2.10),
-conformal coverage 0.912 against a nominal 0.90.
+(`evaluation.json`), after the methodological audit of 2026-10-23:
+
+* read-across ROC AUC **0.828** on the pre-declared scaffold split; **0.776 (0.703-0.828)** as the
+  median over 20 independent fold assignments, which is the figure to quote;
+* **32** assays to recover half the selective compounds against **52** in a random order
+  (31-37 across the 20 splits); enrichment factor at 20 assays **1.67**, against a ceiling of 2.08;
+* Mondrian conformal coverage **0.892** against a nominal 0.90, measured on held-out scaffolds.
+
+Beating the ranking is not the point. The point is whether reasoning over the analogues, the
+literature and the applicability domain produces a *better-justified* shortlist than the ranking
+alone, and whether it declines the right candidates.
