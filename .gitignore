@@ -11,3 +11,6 @@ data/processed/
 !results/*.png
 
 *.pt
+
+# in-flight independent audit by another agent: working material, not a deliverable
+work/
