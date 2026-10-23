@@ -1,0 +1,184 @@
+1
+00:00:00,000 --> 00:00:03,071
+Tens of thousands of chemicals are in commerce.
+
+2
+00:00:03,351 --> 00:00:08,191
+A few hundred have been tested for their effect on the developing nervous system.
+
+3
+00:00:08,711 --> 00:00:19,553
+The modern alternative to an animal study is to grow cortical neurons on a microelectrode
+array, and watch whether they organise themselves into a firing network.
+
+4
+00:00:19,833 --> 00:00:21,086
+It is faster.
+
+5
+00:00:21,366 --> 00:00:25,161
+It still costs days of culture, for every single compound.
+
+6
+00:00:25,681 --> 00:00:29,740
+So the binding question is not "is this chemical neurotoxic".
+
+7
+00:00:30,020 --> 00:00:30,823
+It is:
+
+8
+00:00:30,943 --> 00:00:32,971
+which ones go on the plate first?
+
+9
+00:00:33,801 --> 00:00:35,080
+First, the trap.
+
+10
+00:00:35,360 --> 00:00:41,100
+A chemical that simply kills the culture flattens every electrical measurement you can make.
+
+11
+00:00:41,380 --> 00:00:45,355
+Calling that neuroactive is how this kind of screen fools itself.
+
+12
+00:00:45,875 --> 00:00:49,287
+So the outcome is defined against viability.
+
+13
+00:00:49,567 --> 00:00:56,498
+A network effect counts only when it happens at least three-fold below the concentration
+that kills the cells.
+
+14
+00:00:56,778 --> 00:00:59,040
+Forty-nine compounds qualify.
+
+15
+00:00:59,320 --> 00:01:03,794
+Twenty-eight are inconclusive, and we publish them as inconclusive.
+
+16
+00:01:04,624 --> 00:01:06,140
+From a structure alone:
+
+17
+00:01:06,260 --> 00:01:14,777
+standardise it, fingerprint it, and find its nearest measured relatives among a hundred and
+two chemicals whose answer we already know.
+
+18
+00:01:15,297 --> 00:01:19,705
+Their outcomes, weighted by chemical similarity, become a score.
+
+19
+00:01:19,985 --> 00:01:24,767
+A conformal prediction set turns that score into a statement of confidence.
+
+20
+00:01:25,047 --> 00:01:29,908
+And when the nearest relative is too distant to say anything, the tool says nothing.
+
+21
+00:01:30,738 --> 00:01:37,544
+Test in the order the model recommends, and half the active compounds appear after
+thirty-two assays.
+
+22
+00:01:37,824 --> 00:01:40,787
+In a random order, fifty-one and a half.
+
+23
+00:01:41,067 --> 00:01:45,428
+Across two hundred independent splits, thirty-three to thirty-four.
+
+24
+00:01:45,948 --> 00:01:47,650
+Area under the curve:
+
+25
+00:01:47,770 --> 00:01:55,359
+zero point eight two eight on the pre-declared split, zero point seven seven six as the
+median of twenty others.
+
+26
+00:01:55,879 --> 00:02:02,391
+This is a retrospective evaluation, on a cohort the agency deliberately enriched with
+suspects.
+
+27
+00:02:03,221 --> 00:02:04,351
+We attacked it.
+
+28
+00:02:04,631 --> 00:02:06,332
+Then somebody else did.
+
+29
+00:02:06,852 --> 00:02:15,110
+A separate agent, which never saw our code, rebuilt the labels from the agency spreadsheet,
+and reimplemented the method from scratch.
+
+30
+00:02:15,389 --> 00:02:16,335
+Agreement:
+
+31
+00:02:16,455 --> 00:02:19,319
+five parts in ten to the seventeenth.
+
+32
+00:02:19,839 --> 00:02:28,197
+Then it shuffled the labels between chemical scaffolds, nine hundred and ninety-nine times,
+refitting everything on every shuffle.
+
+33
+00:02:28,717 --> 00:02:31,293
+Not one shuffle reached our result.
+
+34
+00:02:31,573 --> 00:02:34,611
+p equals zero point zero zero one.
+
+35
+00:02:35,441 --> 00:02:38,857
+The decision itself runs inside SciencePal.
+
+36
+00:02:39,137 --> 00:02:47,138
+The agent receives the measured analogues, twenty chemicals withheld from everything, and
+our scoring code — and not our answer.
+
+37
+00:02:47,658 --> 00:02:50,164
+Its chemical database was blocked.
+
+38
+00:02:50,444 --> 00:02:56,116
+It said so, found another route, and recovered a compound our own pipeline had thrown away:
+
+39
+00:02:56,236 --> 00:02:59,697
+the only one of the twenty it could call with confidence.
+
+40
+00:03:00,527 --> 00:03:03,209
+This does not tell you a chemical is safe.
+
+41
+00:03:03,489 --> 00:03:08,000
+A negative result in a dish does not exclude harm in development.
+
+42
+00:03:08,520 --> 00:03:11,168
+It tells you which plate to run on Monday.
+
+43
+00:03:11,448 --> 00:03:13,910
+The five it chose are a prediction.
+
+44
+00:03:14,190 --> 00:03:16,408
+One experiment would settle them.

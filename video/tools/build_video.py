@@ -32,10 +32,12 @@ FFMPEG = "ffmpeg"
 
 # ------------------------------------------------------------------------------------- subtitles
 def srt_time(t: float) -> str:
-    h, rem = divmod(max(t, 0.0), 3600)
-    m, s = divmod(rem, 60)
-    return "%02d:%02d:%06.3f" % (h, m, s).__str__().replace(".", ",") if False else \
-        "%02d:%02d:%02d,%03d" % (h, m, int(s), round((s - int(s)) * 1000))
+    """SRT timestamps rounded on whole milliseconds, so a carry cannot produce ",1000"."""
+    ms = int(round(max(t, 0.0) * 1000))
+    h, ms = divmod(ms, 3_600_000)
+    m, ms = divmod(ms, 60_000)
+    s, ms = divmod(ms, 1000)
+    return "%02d:%02d:%02d,%03d" % (h, m, s, ms)
 
 
 def write_srt(narration: dict, path: Path):
