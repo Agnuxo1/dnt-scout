@@ -1,0 +1,8 @@
+data/raw/
+data/_provisional*
+.pylibs/
+__pycache__/
+*.pyc
+.venv/
+results/tmp/
+*.pt
