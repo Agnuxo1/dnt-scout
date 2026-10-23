@@ -75,7 +75,7 @@ fitting, selection and calibration, the project's scoring script and a task spec
 the platform it executes that code, resolves structures, applies the model and the conformal rule,
 and returns a structured triage report with its refusals.
 
-- **SciencePal project link:** `<inserted on submission>`
+- **SciencePal project link:** https://sciencepal.ai/share/248df9d7-b3aa-4607-8e4c-c4de1a9abc5e
 - **Execution trace:** visible in the linked thread, including the shell commands run in the sandbox.
 - **Pre-declared ablation (E9):** automatic ranking alone versus ranking + agent, scored on the same
   20 withheld chemicals, so the platform's contribution is *measured* rather than asserted.

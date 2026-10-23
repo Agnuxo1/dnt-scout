@@ -58,6 +58,9 @@ def register_fonts() -> tuple[str, str]:
 
 F, FB = register_fonts()
 
+LINK = "https://sciencepal.ai/share/248df9d7-b3aa-4607-8e4c-c4de1a9abc5e"
+LINK_SHORT = "sciencepal.ai/share/248df9d7-b3aa-4607-8e4c-c4de1a9abc5e"
+
 S = {
     "h1": ParagraphStyle("h1", fontName=FB, fontSize=19, leading=22.5, textColor=INK,
                          spaceAfter=2),
@@ -65,11 +68,11 @@ S = {
                           spaceAfter=7),
     "meta": ParagraphStyle("meta", fontName=F, fontSize=7.6, leading=10.6, textColor=FAINT,
                            spaceAfter=8),
-    "h2": ParagraphStyle("h2", fontName=FB, fontSize=11.4, leading=13.6, textColor=INK,
-                         spaceBefore=9, spaceAfter=3.5),
-    "body": ParagraphStyle("body", fontName=F, fontSize=8.5, leading=11.6, textColor=INK,
+    "h2": ParagraphStyle("h2", fontName=FB, fontSize=11.0, leading=13.0, textColor=INK,
+                         spaceBefore=7, spaceAfter=3.0),
+    "body": ParagraphStyle("body", fontName=F, fontSize=8.3, leading=11.1, textColor=INK,
                            alignment=TA_JUSTIFY, spaceAfter=4.5),
-    "lead": ParagraphStyle("lead", fontName=F, fontSize=9.3, leading=12.8, textColor=INK,
+    "lead": ParagraphStyle("lead", fontName=F, fontSize=9.0, leading=12.2, textColor=INK,
                            alignment=TA_JUSTIFY, spaceAfter=5),
     "cap": ParagraphStyle("cap", fontName=F, fontSize=7.1, leading=9.4, textColor=FAINT,
                           alignment=TA_LEFT, spaceAfter=6, spaceBefore=1.5),
@@ -161,7 +164,7 @@ def build():
         P("2026 Global AI4Science Hackathon · AI + Biology / AI Agent · Team NeuroChip Twin (solo) · "
           "Francisco Angulo de Lafuente<br/>"
           "Code and data: <b>github.com/Agnuxo1/dnt-scout</b> (public, MIT) · "
-          "SciencePal project: see §5", "meta"),
+          "SciencePal project: <b>%s</b>" % LINK_SHORT, "meta"),
         callout("Which untested chemicals deserve a microelectrode-array run — and when is the "
                 "structural evidence too thin to say?",
                 "From a chemical structure alone, DNT-Scout ranks compounds by how likely they are "
@@ -185,13 +188,14 @@ def build():
         P("That phrasing matters, because it makes the question measurable. The answer is not an "
           "accuracy figure; it is <b>how many assays you have to run to find the actives</b>. "
           "Every claim here is validated against that number.", "lead"),
-        P("<b>The gap.</b> Strickland (2018) and Kosnik (2020) associate ToxPrint features with MEA "
-          "activity, but without a validated predictive model. Zhang (2021) and Morger (2021) apply "
-          "conformal prediction to Tox21, but to no neuronal endpoint. We found no published work "
-          "doing scaffold-held-out prediction of <i>selective</i> network-formation activity "
-          "together with calibrated uncertainty and an explicit applicability domain."),
+        P("<b>The gap.</b> ToxPrint features have been associated with MEA activity without a "
+          "validated model (Strickland 2018; Kosnik 2020), and conformal prediction has been "
+          "applied to Tox21 but to no neuronal endpoint (Zhang 2021; Morger 2021). We found no "
+          "published work doing scaffold-held-out prediction of <i>selective</i> "
+          "network-formation activity together with calibrated uncertainty and an explicit "
+          "applicability domain."),
         Spacer(1, 3),
-        fig("01_pipeline.png", 1.0,
+        fig("01_pipeline.png", 0.95,
             "Four steps. Structures are resolved and standardised; mixtures and inorganics are "
             "flagged and excluded rather than coerced. The decision returned is one of three, and "
             "never a safety verdict."),
@@ -208,47 +212,56 @@ def build():
           "cytotoxic concentration. Ambiguous chemicals keep their own classes and are "
           "<b>never silently turned into negatives</b>.", "lead"),
         Spacer(1, 2),
-        table([["Class", "n", "Role in the analysis"],
+        KeepTogether(table([["Class", "n", "Role in the analysis"],
                ["Selective effect on network formation", "49", "positive"],
                ["No effect observed in the tested range", "53", "negative"],
                ["Network effect only at cytotoxic concentrations", "28",
                 "reported, excluded, analysed separately (§4)"],
                ["Structure not modellable (mixture, inorganic, unresolved)", "6",
                 "reported, excluded"]],
-              [BODY_W * 0.47, BODY_W * 0.07, BODY_W * 0.46]),
+              [BODY_W * 0.47, BODY_W * 0.07, BODY_W * 0.46])),
         Spacer(1, 5),
-        P("Two things are stated openly rather than buried. The 3× threshold is a choice, so the "
-          "class counts at 1×, 3× and 10× are published together (70 · 49 · 35). And <b>27 of the "
-          "49 positives have no fitted cytotoxicity EC50 at all</b>, so for them the 3× rule was "
-          "never the binding test — they are \"the network responded and nothing toxic was seen in "
-          "range\". The model finds both kinds about equally well (ROC 0.854 for the 22 with a "
-          "measured separation, 0.806 for the 27 without), so this is one endpoint, not two in "
-          "disguise."),
-        fig("02_endpoint.png", 1.0,
+        P("<b>Credit where it is due.</b> The selectivity <i>ratio</i> is not ours: Shafer et al. "
+          "publish a per-compound \"Selectivity Score\" which is exactly this quantity. "
+          "Recomputing it here from the raw EC50 tables reproduces their published values "
+          "(Pearson r = 0.9995 on log10 across the 39 compounds that match by name; o,p'-DDT at "
+          "244.398 in both), which we use as a check that the data pipeline is right rather than "
+          "as a result. <b>What is ours</b> is turning that ratio into a binary outcome, keeping "
+          "the chemicals it cannot classify visible, and building a triage decision on top."),
+        P("<b>What \"no cytotoxicity\" really means.</b> 27 of the 49 positives have no fitted "
+          "cytotoxicity EC50 at all, so for them the 3× rule was never the binding test. The top "
+          "tested concentration is 20 µM throughout, which puts a <i>lower bound</i> on each "
+          "ratio: <b>18 of the 27 clear 3× on that bound</b>, so their selectivity holds inside "
+          "the tested range whatever the missing value would have been, and <b>9 are genuinely "
+          "indeterminate</b> — §5 re-runs the whole evaluation without them. The other 22 clear "
+          "the threshold by a directly measured margin (median 6.5×), and the model finds both "
+          "kinds about equally well (ROC 0.854 and 0.806), so this is one endpoint, not two in "
+          "disguise. The 3× cut is itself a choice, so the class counts at 1×, 3× and 10× are "
+          "published together: 70 · 49 · 35."),
+        fig("02_endpoint.png", 0.97,
             "Left: the three archetypes on a concentration axis. Right: the four classes as "
             "measured, with the hatched 27 marking the positives the ≥3× rule never actually "
             "bound. Source: Shafer et al. 2019, US EPA ScienceHub, DOI 10.23719/1503191 "
             "(public domain). A missing EC50 is the source table's own convention for \"no "
             "concentration-response fitted inside the tested range\", not a missing measurement."),
         P("3 · Method", "h2"),
-        P("<b>Data.</b> 136 chemicals with per-parameter EC50 values across 17 network parameters "
-          "and two viability assays, re-downloaded from the original EPA source and pinned by "
-          "SHA256; structures resolved from PubChem (132/136) and standardised with RDKit. "
-          "<b>Models.</b> A prevalence control; L2 logistic regression on ten physicochemical "
-          "descriptors; a similarity-weighted k-nearest-analogue <b>read-across</b> of the kind US "
-          "EPA GenRA is built on; and a random forest over Morgan fingerprints, MACCS keys and "
-          "descriptors. Hyperparameters and the conformal calibration split are chosen by grouped "
-          "cross-validation <b>inside each training fold</b>; the test fold is touched once, to "
-          "predict. Confidence intervals resample whole scaffold groups, never individual "
-          "chemicals. <b>Uncertainty.</b> Mondrian conformal prediction at a nominal 90% with an "
-          "applicability-domain check; the conformal quantiles and the test scores they are applied "
-          "to come from the same fitted model, which is what makes the guarantee follow."),
+        P("<b>Data:</b> 136 chemicals with per-parameter EC50 values across 17 network parameters "
+          "and two viability assays, re-downloaded from the EPA source and pinned by SHA256; "
+          "structures from PubChem (132/136), standardised with RDKit. <b>Models:</b> a prevalence "
+          "control; L2 logistic regression on ten physicochemical descriptors; a "
+          "similarity-weighted k-nearest-analogue <b>read-across</b> of the kind US EPA GenRA is "
+          "built on (re-implemented here, not the EPA service); and a random forest over Morgan "
+          "fingerprints, MACCS keys and descriptors. Hyperparameters and the conformal calibration "
+          "split are chosen by grouped cross-validation <b>inside each training fold</b>; the test "
+          "fold is touched once, to predict. Intervals resample whole scaffold groups, never "
+          "individual chemicals. <b>Uncertainty:</b> Mondrian conformal prediction at a nominal "
+          "90% with an applicability-domain check, the quantiles and the test scores coming from "
+          "the same fitted model — which is what makes the guarantee follow."),
     ]
 
     # ------------------------------------------------------------------ page 3
     st += [
-        P("4 · Result", "h2"),
-        fig("03_enrichment.png", 0.88),
+        KeepTogether([P("4 · Result", "h2"), fig("03_enrichment.png", 0.84)]),
         Spacer(1, 1),
         table([["Model", "ROC AUC<br/>pre-declared split", "ROC AUC<br/>median of 20 splits",
                 "PR AUC", "Assays for<br/>half the actives"],
@@ -275,7 +288,7 @@ def build():
                 "calibrated on a different model from the one making the predictions, and an "
                 "operating threshold taken from the evaluation set's own labels.", ACCENT),
         Spacer(1, 4),
-        fig("04_robustness.png", 1.0),
+        fig("04_robustness.png", 0.95),
     ]
 
     # ------------------------------------------------------------------ page 4
@@ -296,14 +309,22 @@ def build():
           "similarity drops performance to 0.74–0.77 — still far above chance, but the three model "
           "families converge. <b>Read-across being the best model is specific to the scaffold "
           "split; structure carrying real signal is not.</b>"),
-        P("6 · Saying \"I don't know\"", "h2"),
+        P("<b>The strictest possible endpoint.</b> The sharpest objection to this work is the 9 "
+          "positives whose selectivity ratio cannot be bounded above 3×. The whole evaluation was "
+          "re-run without them, and the result <b>improves</b>: read-across reaches ROC "
+          "<b>0.832 (0.790–0.877)</b> and the structural forest <b>0.839 (0.823–0.871)</b> on the "
+          "remaining 93 chemicals, needing <b>25 assays against 45.8</b> at random — a 45% saving "
+          "rather than 38%. Those nine were diluting the signal, not creating it: the headline "
+          "does not depend on the positives that are hardest to defend, and is stronger without "
+          "them."),
+        KeepTogether([P("6 · Saying \"I don't know\"", "h2"),
         P("A triage tool that answers every question is not calibrated, it is guessing. Coverage is "
           "<b>measured on held-out scaffolds, not assumed</b>: 89.2% against the 90% promised "
           "(87.8% and 90.6% by class). With 102 held-out chemicals the standard error on a coverage "
           "of 0.90 is about 3 points, so these agree. The honest cost: the prediction set is "
           "uninformative for 63% of chemicals and 7.8% fall outside the applicability domain. "
           "Those are the queries where the right answer is a shrug, and the tool gives one."),
-        fig("05_uncertainty.png", 1.0),
+        fig("05_uncertainty.png", 0.90)]),
         P("7 · Scope, and what lies outside it", "h2"),
         P("The 28 chemicals whose network effect appears only at lethal concentrations are excluded "
           "from the primary comparison, and they are not a random 28: they carry 22 scaffolds that "
@@ -323,6 +344,7 @@ def build():
     # ------------------------------------------------------------------ page 5
     st += [
         P("8 · SciencePal in the core step", "h2"),
+        P("Live thread: <b>%s</b>" % LINK, "cap"),
         P("The central decision of this project does not happen in our repository — it happens "
           "inside SciencePal. The platform's <b>Biology Agent</b> is given the 102 measured "
           "analogues with their outcomes, 20 chemicals from the wider EPA screen withheld from "
@@ -333,12 +355,30 @@ def build():
           "assay, with evidence, uncertainty, reason and the next assay to run. "
           "<b>Pre-declared ablation:</b> automatic ranking alone versus ranking + agent on the same "
           "20 withheld chemicals, so the platform's contribution is measured rather than asserted.", "lead"),
-        fig("07_agent.png", 1.0,
-            "Nine of the twenty come back undecided — four have no single resolvable structure, "
-            "five are outside the applicability domain — and none of the five recommended carries "
-            "a confident positive call either. They are the chemicals with the strongest analogue "
-            "evidence, which is what a triage list is, and the agent reports it that way rather "
-            "than dressing a ranking up as a prediction."),
+        Spacer(1, 2),
+        table([["", "ranking alone", "ranking + SciencePal agent"],
+               ["Candidates resolved to a structure", "16 / 20", "<b>19 / 20</b>"],
+               ["With a decisive 90% conformal set", "0", "<b>1</b>"],
+               ["Refusals", "9, one bucket", "<b>6, in three distinct categories</b>"],
+               ["Literature support", "none", "<b>4 DOI-cited mechanistic claims</b>"]],
+              [BODY_W * 0.40, BODY_W * 0.27, BODY_W * 0.33]),
+        Spacer(1, 4),
+        P("<b>Result.</b> PubChem was IP-blocked from the SciencePal sandbox. The agent said so "
+          "instead of failing quietly, routed around it through NCI CACTUS and the US EPA "
+          "Substance Registry Service, and resolved 19 of 20 against our 16. One of the three it "
+          "recovered was <b>doxylamine</b> — a salt our automated pipeline had discarded, and the "
+          "only chemical of the twenty with a decisive conformal set (score 1.000). It also "
+          "<b>overruled the ranking</b>, dropping oxytetracycline because its nearest measured "
+          "analogue is tetracycline at T = 0.50, the highest similarity anywhere in the candidate "
+          "set, and tetracycline shows no effect — so the score was propped up by two far weaker "
+          "selective neighbours. Its three headline numbers were recomputed here before being "
+          "believed, and they reproduce exactly. What the ablation does <i>not</i> establish: the "
+          "two arms did not face identical network conditions, no accuracy was measured because "
+          "none of the twenty has a known outcome, and this is one run, not a benchmark."),
+        fig("07_agent.png", 0.88,
+            "The ranking's own view of the same twenty. Nine come back undecided and none of the "
+            "five recommended carries a confident positive call — they are the chemicals with the "
+            "strongest analogue evidence, which is what a triage list is."),
         P("9 · Limitations", "h2"),
         P("<b>102 chemicals.</b> Every interval is wide; the per-fold standard deviation of ROC is "
           "0.108. This is a small-data problem and is reported as one. &nbsp;<b>Cohort prevalence "
@@ -350,14 +390,13 @@ def build():
           "verdict:</b> a negative <i>in vitro</i> result does not exclude developmental "
           "neurotoxicity — the OECD guidance says so directly."),
         P("10 · Next steps", "h2"),
-        P("<b>(1)</b> Extend to the 324 chemicals of the wider screen that have network data but no "
-          "viability measurement — a weaker label, requiring an explicit statement of why, and a "
-          "natural test of whether the ranking survives a noisier outcome. &nbsp;<b>(2)</b> "
-          "Prospective validation: the five recommendations in §8 are a falsifiable prediction, and "
-          "one MEA plate would settle them. &nbsp;<b>(3)</b> A pre-declared graph-neural-network "
-          "comparison, deliberately left out at n = 102, once there is enough data to make it "
-          "meaningful. &nbsp;<b>(4)</b> Cross-laboratory concordance between the NTP and ToxCast "
-          "cohorts inside the EPA screen."),
+        P("<b>(1) Prospective validation:</b> the five recommendations in §8 are a falsifiable "
+          "prediction, and one MEA plate would settle them. &nbsp;<b>(2)</b> Extend to the 324 "
+          "chemicals of the wider screen with network data but no viability measurement — a weaker "
+          "label, and a natural test of whether the ranking survives a noisier outcome. "
+          "&nbsp;<b>(3)</b> Cross-laboratory concordance between the NTP and ToxCast cohorts "
+          "inside the EPA screen, and a pre-declared graph-neural-network comparison once there "
+          "is enough data to make one meaningful."),
         P("Originality and resources", "h2"),
         P("<b>All code, figures, results and text were created during the event.</b> The author has "
           "a separate, unrelated project (NeuroChip Twin) entered in another competition; "

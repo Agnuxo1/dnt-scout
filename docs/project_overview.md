@@ -129,7 +129,7 @@ right answer is a shrug, and the tool gives one.
 ## 5 · SciencePal in the core step
 
 <!-- FILLED IN AFTER EXECUTION -->
-*SciencePal project link:* **`<to be inserted>`**
+*SciencePal project link:* https://sciencepal.ai/share/248df9d7-b3aa-4607-8e4c-c4de1a9abc5e
 
 The central decision of this project does not happen in our repository — it happens inside
 SciencePal. The platform's Biology Agent is given `agent_package/`: the 102 measured analogues with

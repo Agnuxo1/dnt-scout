@@ -5,7 +5,7 @@
 > text and its own numbers, not ours, and it is kept verbatim so the ablation in
 > `ABLATION.md` can be checked against it.
 >
-> **Thread:** https://sciencepal.ai/projects/3a2ef4ae-6cf9-4ec7-9129-a43bd06963ba/thread/248df9d7-b3aa-4607-8e4c-c4de1a9abc5e
+> **Thread:** https://sciencepal.ai/share/248df9d7-b3aa-4607-8e4c-c4de1a9abc5e
 > **Inputs uploaded:** `TASK.md`, `analogues_with_outcome.csv`, `candidates_unseen.csv`,
 > `score_candidates.py`. `scores.csv` — the answer from our own external run — was deliberately
 > **not** uploaded, so the agent could not copy it.

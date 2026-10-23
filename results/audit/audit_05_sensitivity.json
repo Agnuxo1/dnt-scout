@@ -1,0 +1,98 @@
+{
+ "as published (102 chemicals)": {
+  "n": 102,
+  "n_pos": 49,
+  "prevalence": 0.4803921568627451,
+  "random_assays": [
+   51.4386,
+   41,
+   61
+  ],
+  "models": [
+   {
+    "model": "prevalence",
+    "roc_median": 0.5,
+    "roc_min": 0.5,
+    "roc_max": 0.5,
+    "assays_median": 52,
+    "assays_min": 52,
+    "assays_max": 52
+   },
+   {
+    "model": "physchem_logistic",
+    "roc_median": 0.7457643434732384,
+    "roc_min": 0.6827108201771275,
+    "roc_max": 0.7529842125529457,
+    "assays_median": 36,
+    "assays_min": 33,
+    "assays_max": 39
+   },
+   {
+    "model": "read_across",
+    "roc_median": 0.7791682710820177,
+    "roc_min": 0.6946476703889103,
+    "roc_max": 0.8276857912976512,
+    "assays_median": 32,
+    "assays_min": 31,
+    "assays_max": 37
+   },
+   {
+    "model": "fingerprint_forest",
+    "roc_median": 0.756931074316519,
+    "roc_min": 0.7275702733923758,
+    "roc_max": 0.777820562187139,
+    "assays_median": 34,
+    "assays_min": 33,
+    "assays_max": 36
+   }
+  ]
+ },
+ "strict (the 9 unbounded positives removed)": {
+  "n": 93,
+  "n_pos": 40,
+  "prevalence": 0.43010752688172044,
+  "random_assays": [
+   45.7947,
+   35,
+   56
+  ],
+  "models": [
+   {
+    "model": "prevalence",
+    "roc_median": 0.5,
+    "roc_min": 0.5,
+    "roc_max": 0.5,
+    "assays_median": 47,
+    "assays_min": 47,
+    "assays_max": 47
+   },
+   {
+    "model": "physchem_logistic",
+    "roc_median": 0.7662735849056603,
+    "roc_min": 0.7358490566037736,
+    "roc_max": 0.7851415094339622,
+    "assays_median": 31,
+    "assays_min": 28,
+    "assays_max": 33
+   },
+   {
+    "model": "read_across",
+    "roc_median": 0.8320754716981131,
+    "roc_min": 0.7896226415094338,
+    "roc_max": 0.8773584905660378,
+    "assays_median": 25,
+    "assays_min": 23,
+    "assays_max": 29
+   },
+   {
+    "model": "fingerprint_forest",
+    "roc_median": 0.8390330188679246,
+    "roc_min": 0.8231132075471699,
+    "roc_max": 0.870754716981132,
+    "assays_median": 27,
+    "assays_min": 23,
+    "assays_max": 29
+   }
+  ]
+ }
+}

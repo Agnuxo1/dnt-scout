@@ -15,7 +15,7 @@ candidates?**
 
 | | **A — ranking alone** | **B — ranking + SciencePal Biology Agent** |
 |---|---|---|
-| Where | our machine, `scripts/score_candidates.py` | SciencePal sandbox, [thread](https://sciencepal.ai/projects/3a2ef4ae-6cf9-4ec7-9129-a43bd06963ba/thread/248df9d7-b3aa-4607-8e4c-c4de1a9abc5e) |
+| Where | our machine, `scripts/score_candidates.py` | SciencePal sandbox, [thread](https://sciencepal.ai/share/248df9d7-b3aa-4607-8e4c-c4de1a9abc5e) |
 | Given | the same 4 files | the same 4 files |
 | PubChem PUG-REST | reachable | **IP-blocked by NCBI** |
 | Output | `results/agent_package/scores.csv` | `AGENT_REPORT.md` (verbatim) |

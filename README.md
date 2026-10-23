@@ -114,6 +114,21 @@ suggests. Holding out whole Butina clusters at 0.6 similarity is harder, and per
 0.74–0.77 — still far above chance, but with the three model families converging. **Read-across
 being the best model is specific to the scaffold split; structure carrying real signal is not.**
 
+**The strictest possible endpoint.** The sharpest objection to this work is the 9 positives whose
+selectivity ratio cannot be bounded above 3× (§2). So the whole evaluation was re-run without them
+— and the result **improves**:
+
+| | as published (102 chemicals) | strict (93, the 9 removed) |
+|---|---|---|
+| Read-across ROC AUC | 0.779 (0.695–0.828) | **0.832 (0.790–0.877)** |
+| Structural forest ROC AUC | 0.757 | **0.839 (0.823–0.871)** |
+| Assays for half the actives | 32 vs 51.4 at random | **25 vs 45.8** — a 45% saving |
+
+Those nine were *diluting* the signal, not creating it. The headline does not depend on the
+positives that are hardest to defend; it is stronger without them. (Under the strict endpoint the
+structural forest edges ahead of read-across, with overlapping intervals — another reminder that
+which model wins is not the robust part of this result.)
+
 ## 5 · Saying "I don't know"
 
 A triage tool that answers every question is not calibrated, it is guessing. Each prediction comes
@@ -172,7 +187,7 @@ be audited instead of trusted.
 
 ### The same task, run inside SciencePal
 
-**Live thread:** https://sciencepal.ai/projects/3a2ef4ae-6cf9-4ec7-9129-a43bd06963ba/thread/248df9d7-b3aa-4607-8e4c-c4de1a9abc5e
+**Live thread:** https://sciencepal.ai/share/248df9d7-b3aa-4607-8e4c-c4de1a9abc5e
 
 The central step is executed inside the platform, not here: the SciencePal **Biology Agent** is
 given the same four files — and deliberately *not* given `scores.csv`, the answer above — then
