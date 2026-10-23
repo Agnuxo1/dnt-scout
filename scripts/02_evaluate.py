@@ -25,11 +25,13 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.base import clone
 from sklearn.metrics import average_precision_score, balanced_accuracy_score, roc_auc_score
 
 from dntscout import chem
 from dntscout.evaluation import (RNG_SEED, MondrianConformal, enrichment_curve, grouped_folds,
-                                 random_baseline_ef, scaffold_groups)
+                                 per_fold_metric, random_baseline_ef, rank_within_fold,
+                                 scaffold_groups)
 from dntscout.models import Prevalence, ReadAcross, forest, logistic
 
 BUDGETS = (10, 20, 30, 50)
@@ -111,12 +113,17 @@ def main() -> None:
     oof = {k: np.zeros(len(y)) for k in
            ("prevalence", "physchem_logistic", "read_across", "fingerprint_forest")}
     chosen: dict[str, list[str]] = {k: [] for k in oof}
-    cp_sets: list[set] = [set()] * len(y)
+    cp_sets: list[set] = [set() for _ in range(len(y))]
     cp_indomain = np.zeros(len(y), dtype=bool)
     nn_sim = np.zeros(len(y))
+    fold_of = np.full(len(y), -1, dtype=int)
+    # one operating threshold per fold, fixed from the *training* prevalence: the test labels
+    # never touch it.
+    thr_of = np.zeros(len(y))
 
     for f, (tr, te) in enumerate(folds):
         y_tr, g_tr = y[tr], groups[tr]
+        fold_of[te] = f
         oof["prevalence"][te] = Prevalence().fit(X[tr], y_tr).predict_proba1(X[te])
         chosen["prevalence"].append("prevalence")
 
@@ -129,19 +136,29 @@ def main() -> None:
         oof["physchem_logistic"][te] = m_desc.predict_proba1(X_desc[te])
         chosen["physchem_logistic"].append(m_desc.name)
 
-        # the structural model, with an inner calibration split for conformal prediction
+        # The structural model, with an inner calibration split for conformal prediction.
+        #
+        # Inductive conformal prediction only holds when the *same* fitted model produces the
+        # calibration scores and the test scores: calibrating on a model fitted to three quarters
+        # of the training fold and then applying those quantiles to a model fitted on all of it
+        # compares two different score distributions, and the coverage guarantee no longer
+        # follows. So `m_cal` does both jobs for the conformal sets, while the ranking score uses
+        # `m_full`, which has seen more data. `clone` keeps the two estimators genuinely separate;
+        # reusing one object made the result depend on the order of two lines.
         m_fp = inner_select_sk(X[tr], y_tr, g_tr, "forest")
         inner = grouped_folds(g_tr, y_tr, n_folds=4, seed=RNG_SEED + 2)
         fit_idx, cal_idx = inner[0][0], inner[0][1]
-        m_cal = m_fp.__class__(m_fp.est, m_fp.name).fit(X[tr][fit_idx], y_tr[fit_idx])
+        m_cal = m_fp.__class__(clone(m_fp.est), m_fp.name).fit(X[tr][fit_idx], y_tr[fit_idx])
         p_cal = m_cal.predict_proba1(X[tr][cal_idx])
         ad_thr = float(np.percentile(ReadAcross.max_similarity(sim[np.ix_(tr[cal_idx], tr[fit_idx])]), 10))
         cp = MondrianConformal(alpha=ALPHA, ad_threshold=ad_thr).fit(p_cal, y_tr[cal_idx])
-        m_full = m_fp.__class__(m_fp.est, m_fp.name).fit(X[tr], y_tr)
+        m_full = m_fp.__class__(clone(m_fp.est), m_fp.name).fit(X[tr], y_tr)
         p_te = m_full.predict_proba1(X[te])
         oof["fingerprint_forest"][te] = p_te
-        chosen["fingerprint_forest"].append(f"{m_fp.name},ad>={ad_thr:.2f}")
-        s, d = cp.predict_set(p_te, similarity=nn_sim[te])
+        thr_of[te] = float(np.quantile(m_full.predict_proba1(X[tr]), 1 - y_tr.mean()))
+        chosen["fingerprint_forest"].append(f"{m_fp.name},ad>={ad_thr:.2f},"
+                                            f"n_cal={len(cal_idx)}")
+        s, d = cp.predict_set(m_cal.predict_proba1(X[te]), similarity=nn_sim[te])
         for j, i in enumerate(te):
             cp_sets[i] = s[j]
         cp_indomain[te] = d
@@ -152,24 +169,39 @@ def main() -> None:
     results = {"n": int(len(y)), "n_positive": int(y.sum()), "prevalence": float(y.mean()),
                "n_scaffold_groups": int(len(np.unique(groups))), "n_folds": N_FOLDS,
                "alpha": ALPHA, "seed": RNG_SEED, "models": {}}
+    # The operating point is set from the mean *training* prevalence, never from the test labels,
+    # and applied on the rank scale, where it means "take the top q of every fold".
+    q_op = 1.0 - float(np.mean([y[tr].mean() for tr, _ in folds]))
+    results["operating_quantile_from_training_prevalence"] = q_op
     for k, p in oof.items():
-        thr = float(np.quantile(p, 1 - y.mean()))
+        r = rank_within_fold(p, fold_of)
+        pf = per_fold_metric(roc_auc_score, y, p, fold_of)
         row = {
             "selected_per_fold": chosen[k],
-            "roc_auc": float(roc_auc_score(y, p)),
-            "pr_auc": float(average_precision_score(y, p)),
-            "balanced_accuracy_at_prevalence": float(balanced_accuracy_score(y, (p >= thr).astype(int))),
+            # headline: ranks pooled within fold, so a constant predictor scores exactly 0.500
+            "roc_auc": float(roc_auc_score(y, r)),
+            "pr_auc": float(average_precision_score(y, r)),
+            # kept beside it, because the gap between the two is itself worth seeing
+            "roc_auc_pooled_raw": float(roc_auc_score(y, p)),
+            "pr_auc_pooled_raw": float(average_precision_score(y, p)),
+            "roc_auc_per_fold": pf.tolist(),
+            "roc_auc_per_fold_mean": float(pf.mean()),
+            "roc_auc_per_fold_sd": float(pf.std(ddof=1)) if len(pf) > 1 else float("nan"),
+            "balanced_accuracy_at_training_prevalence":
+                float(balanced_accuracy_score(y, (r >= q_op).astype(int))),
         }
-        row["roc_auc_ci95"] = group_bootstrap_ci(roc_auc_score, y, p, groups)
-        row["pr_auc_ci95"] = group_bootstrap_ci(average_precision_score, y, p, groups)
-        e = enrichment_curve(p, y, groups=groups, name=k, budgets=BUDGETS)
+        row["roc_auc_ci95"] = group_bootstrap_ci(roc_auc_score, y, r, groups)
+        row["pr_auc_ci95"] = group_bootstrap_ci(average_precision_score, y, r, groups)
+        e = enrichment_curve(r, y, groups=groups, name=k, budgets=BUDGETS)
         row["enrichment"] = {"tests_for_percent_of_positives": e.tests_for,
                              "positives_found_at_budget": e.hits_at,
                              "enrichment_factor": e.ef_at,
                              "enrichment_factor_ci95": {str(b): e.ci_ef[b] for b in e.ci_ef}}
         results["models"][k] = row
-        print(f"{k:>20}  ROC {row['roc_auc']:.3f}  PR {row['pr_auc']:.3f}  "
-              f"EF@20 {e.ef_at[20]:.2f}  tests for 50% of positives: {e.tests_for[50]}")
+        print(f"{k:>20}  ROC {row['roc_auc']:.3f} (raw pooled {row['roc_auc_pooled_raw']:.3f}, "
+              f"per-fold {row['roc_auc_per_fold_mean']:.3f}+-{row['roc_auc_per_fold_sd']:.3f})  "
+              f"PR {row['pr_auc']:.3f}  EF@20 {e.ef_at[20]:.2f}  "
+              f"tests for 50% of positives: {e.tests_for[50]}")
 
     results["random_selection"] = {str(b): v for b, v in random_baseline_ef(y, budgets=BUDGETS).items()}
     results["conformal"] = MondrianConformal.report(cp_sets, cp_indomain, y)
@@ -179,7 +211,7 @@ def main() -> None:
     # performance as a function of distance to the training set: where it can be trusted
     bands = [(0.0, 0.3), (0.3, 0.5), (0.5, 1.0)]
     by_sim = []
-    p_best = oof["fingerprint_forest"]
+    p_best = rank_within_fold(oof["fingerprint_forest"], fold_of)
     for lo, hi in bands:
         m = (nn_sim >= lo) & (nn_sim < hi) if hi < 1.0 else (nn_sim >= lo)
         if m.sum() >= 10 and len(set(y[m])) > 1:
@@ -193,8 +225,10 @@ def main() -> None:
 
     pred = kept[["Casrn", "DTXSID", "PREFERRED_NAME", "Compound", "smiles", "scaffold",
                  "label", "y", "ec50_network_min", "ec50_viability_min", "cohort"]].copy()
+    pred["fold"] = fold_of
     for k, p in oof.items():
         pred[f"score_{k}"] = p
+        pred[f"rank_{k}"] = rank_within_fold(p, fold_of)
     pred["nearest_analogue_tanimoto"] = nn_sim
     pred["conformal_set"] = ["{" + ",".join(str(x) for x in sorted(s)) + "}" for s in cp_sets]
     pred["in_applicability_domain"] = cp_indomain

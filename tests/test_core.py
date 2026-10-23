@@ -159,3 +159,78 @@ def test_prevalence_baseline_scores_near_chance():
     for tr, te in grouped_folds(groups, y, n_folds=5):
         oof[te] = Prevalence().fit(X[tr], y[tr]).predict_proba1(X[te])
     assert 0.3 <= roc_auc_score(y, oof) <= 0.7, roc_auc_score(y, oof)
+
+
+# --------------------------------------------------------------- pooling across folds
+# These pin down the fix for a real defect: pooling five folds' raw scores into one ranking made
+# a constant-per-fold predictor score 0.473 instead of chance, and every ranking metric in the
+# report inherited that bias.
+
+
+def test_constant_per_fold_predictor_scores_exactly_chance_after_ranking():
+    """A predictor that emits its own training fold's prevalence carries no information.
+
+    Its pooled raw AUC drifts away from 0.5 purely because the five folds have slightly different
+    prevalences; ranking inside each fold must put it back at exactly 0.5.
+    """
+    from sklearn.metrics import roc_auc_score
+    from dntscout.evaluation import rank_within_fold
+
+    rng = np.random.default_rng(0)
+    y = rng.integers(0, 2, 200)
+    fold_of = np.repeat(np.arange(5), 40)
+    raw = np.array([y[fold_of != f].mean() for f in fold_of])   # the prevalence baseline
+    assert roc_auc_score(y, raw) != pytest.approx(0.5, abs=1e-9)   # the artefact is real
+    assert roc_auc_score(y, rank_within_fold(raw, fold_of)) == pytest.approx(0.5, abs=1e-12)
+
+
+def test_rank_within_fold_preserves_order_inside_a_fold():
+    from dntscout.evaluation import rank_within_fold
+    scores = np.array([0.1, 0.9, 0.5, 100.0, 50.0, 70.0])
+    fold_of = np.array([0, 0, 0, 1, 1, 1])
+    r = rank_within_fold(scores, fold_of)
+    for f in (0, 1):
+        m = fold_of == f
+        assert list(np.argsort(scores[m])) == list(np.argsort(r[m]))
+        assert ((r[m] > 0) & (r[m] < 1)).all()
+
+
+def test_per_fold_metric_skips_single_class_folds():
+    from sklearn.metrics import roc_auc_score
+    from dntscout.evaluation import per_fold_metric
+    y = np.array([0, 1, 0, 1, 1, 1])
+    fold_of = np.array([0, 0, 0, 1, 1, 1])      # fold 1 is all positives: undefined, not zero
+    vals = per_fold_metric(roc_auc_score, y, np.array([.1, .9, .2, .3, .4, .5]), fold_of)
+    assert len(vals) == 1 and vals[0] == pytest.approx(1.0)
+
+
+# --------------------------------------------------------------------- conformal validity
+
+
+def test_conformal_calibration_and_test_scores_come_from_one_model():
+    """Split conformal is only valid when one fitted model produces both score sets.
+
+    Calibrating on a model fitted to part of the training fold and then applying the quantiles to
+    a model fitted on all of it compares two different score distributions. This test fails if
+    `02_evaluate.py` goes back to feeding `m_full`'s predictions into `cp.predict_set`.
+    """
+    src = (__import__("pathlib").Path(__file__).resolve().parents[1]
+           / "scripts" / "02_evaluate.py").read_text(encoding="utf-8")
+    assert "cp.predict_set(m_cal.predict_proba1(X[te])" in src
+    assert "clone(m_fp.est)" in src, "the two estimators must not be the same object"
+
+
+def test_operating_threshold_never_sees_the_test_labels():
+    src = (__import__("pathlib").Path(__file__).resolve().parents[1]
+           / "scripts" / "02_evaluate.py").read_text(encoding="utf-8")
+    assert "np.quantile(p, 1 - y.mean())" not in src, \
+        "the decision threshold must come from the training prevalence, not the evaluation set"
+    assert "q_op = 1.0 - float(np.mean([y[tr].mean() for tr, _ in folds]))" in src
+
+
+def test_conformal_sets_are_distinct_objects():
+    """`[set()] * n` makes n references to ONE set; a single missed assignment then corrupts all."""
+    src = (__import__("pathlib").Path(__file__).resolve().parents[1]
+           / "scripts" / "02_evaluate.py").read_text(encoding="utf-8")
+    assert "[set()] * len(y)" not in src
+    assert "[set() for _ in range(len(y))]" in src

@@ -18,6 +18,50 @@ import numpy as np
 RNG_SEED = 20261023
 
 
+# ------------------------------------------------------------- pooling across folds
+
+
+def rank_within_fold(scores: np.ndarray, fold_of: np.ndarray) -> np.ndarray:
+    """Replace each score by its rank *inside its own fold*, mapped to (0, 1).
+
+    Cross-validation produces one model per fold, and nothing makes five models' probabilities
+    comparable to each other. Pooling the raw scores into a single ranking therefore mixes five
+    scales, and the damage is measurable: a predictor that outputs its training fold's prevalence
+    — a constant, which must score exactly chance — comes out at ROC 0.473 when pooled raw, and at
+    exactly 0.500 once ranked within fold. Every ranking-based number in this project is computed
+    on these ranks, with the raw-pooled value reported next to it so the difference stays visible.
+
+    Ties share the mean of the ranks they span, so a constant predictor maps to a constant.
+    """
+    scores, fold_of = np.asarray(scores, dtype=float), np.asarray(fold_of)
+    out = np.zeros(len(scores), dtype=float)
+    for f in np.unique(fold_of):
+        m = fold_of == f
+        s = scores[m]
+        order = np.argsort(s, kind="stable")
+        r = np.empty(len(s), dtype=float)
+        r[order] = np.arange(1, len(s) + 1)
+        for v in np.unique(s):                       # ties share their mean rank
+            tie = s == v
+            r[tie] = r[tie].mean()
+        out[m] = r / (len(s) + 1)
+    return out
+
+
+def per_fold_metric(metric, y: np.ndarray, scores: np.ndarray, fold_of: np.ndarray) -> np.ndarray:
+    """The metric computed separately inside each fold, where scores *are* comparable.
+
+    Folds with a single class are skipped rather than scored, since the metric is undefined there.
+    """
+    y, scores, fold_of = np.asarray(y), np.asarray(scores), np.asarray(fold_of)
+    vals = []
+    for f in np.unique(fold_of):
+        m = fold_of == f
+        if len(set(y[m].tolist())) > 1:
+            vals.append(float(metric(y[m], scores[m])))
+    return np.asarray(vals, dtype=float)
+
+
 # --------------------------------------------------------------------------- splits
 
 
