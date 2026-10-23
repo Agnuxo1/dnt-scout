@@ -124,12 +124,13 @@ def frame_enrichment(curves, y, reveal, rnd, spread):
                 "%d chemicals, %d with a selective effect · scaffold-held-out, "
                 "ranks pooled within fold" % (n, npos))
     S.despine(ax)
-    figure_note(fig, "Read-across needs %d runs to reach half the actives against %d at random "
-                     "(%.1f on average, 95%% range %d-%d). Across 20 independent fold "
-                     "assignments the figure stays at %d runs (range %d-%d), so the saving does "
-                     "not depend on one lucky split."
-                % (a_model, a_rand, rnd[0], rnd[1], rnd[2], spread[0], spread[1], spread[2]),
-                width=132, y=0.022)
+    figure_note(fig, "Read-across needs %d runs to reach half the actives against an exact "
+                     "random-order mean of %.1f (95%% range %d-%d). The saving does not depend on "
+                     "one lucky split: 20 fold assignments give a median of %d runs (%d-%d), and "
+                     "an independent audit over 200 fresh assignments finds 33-34 runs typically "
+                     "(29-44)."
+                % (a_model, rnd[0], rnd[1], rnd[2], spread[0], spread[1], spread[2]),
+                width=136, y=0.022)
     return fig
 
 

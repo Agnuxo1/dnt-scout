@@ -170,10 +170,11 @@ def build():
                 "From a chemical structure alone, DNT-Scout ranks compounds by how likely they are "
                 "to <i>selectively</i> disrupt the formation of neuronal networks, attaches a "
                 "calibrated statement of confidence, and refuses to answer when the chemistry lies "
-                "outside what it has evidence for. <b>32 microelectrode-array runs instead of 52</b> "
+                "outside what it has evidence for. <b>32 microelectrode-array runs instead of 51.5</b> "
                 "to find half the active compounds — about a third of the laboratory work removed, "
-                "and stable at 31–37 runs across 20 independent splits. It is a triage tool for a "
-                "laboratory queue, not a safety verdict.", SELECTIVE),
+                "and 33–34 runs typically across 200 independent splits. An independent audit "
+                "puts the signal at <b>p = 0.001</b> on a 999-permutation test. It is a triage "
+                "tool for a laboratory queue, not a safety verdict.", SELECTIVE),
         Spacer(1, 7),
         P("1 · The problem, and why it is a scheduling problem", "h2"),
         P("Developmental neurotoxicity is among the most expensive endpoints in regulatory "
@@ -195,7 +196,7 @@ def build():
           "network-formation activity together with calibrated uncertainty and an explicit "
           "applicability domain."),
         Spacer(1, 3),
-        fig("01_pipeline.png", 0.95,
+        fig("01_pipeline.png", 0.88,
             "Four steps. Structures are resolved and standardised; mixtures and inorganics are "
             "flagged and excluded rather than coerced. The decision returned is one of three, and "
             "never a safety verdict."),
@@ -238,7 +239,7 @@ def build():
           "kinds about equally well (ROC 0.854 and 0.806), so this is one endpoint, not two in "
           "disguise. The 3× cut is itself a choice, so the class counts at 1×, 3× and 10× are "
           "published together: 70 · 49 · 35."),
-        fig("02_endpoint.png", 0.97,
+        fig("02_endpoint.png", 0.88,
             "Left: the three archetypes on a concentration axis. Right: the four classes as "
             "measured, with the hatched 27 marking the positives the ≥3× rule never actually "
             "bound. Source: Shafer et al. 2019, US EPA ScienceHub, DOI 10.23719/1503191 "
@@ -261,50 +262,62 @@ def build():
 
     # ------------------------------------------------------------------ page 3
     st += [
-        KeepTogether([P("4 · Result", "h2"), fig("03_enrichment.png", 0.84)]),
+        KeepTogether([P("4 · Result", "h2"), fig("03_enrichment.png", 0.78)]),
         Spacer(1, 1),
         table([["Model", "ROC AUC<br/>pre-declared split", "ROC AUC<br/>median of 20 splits",
                 "PR AUC", "Assays for<br/>half the actives"],
                ["Chance (control)", "<b>0.500</b>", "0.500", "0.480", "52"],
                ["Physicochemical descriptors", "0.750", "0.746", "0.635", "36"],
                ["Read-across from measured analogues", "<b>0.828</b>",
-                "<b>0.776 (0.703–0.828)</b>", "<b>0.780</b>", "<b>32 (31–37)</b>"],
+                "<b>0.776 (0.703–0.828)</b>", "<b>0.780</b>", "<b>32 · 33–34 typical</b>"],
                ["Structural random forest", "0.766", "0.756", "0.674", "36"]],
               [BODY_W * 0.30, BODY_W * 0.17, BODY_W * 0.21, BODY_W * 0.11, BODY_W * 0.21],
               highlight_row=3),
-        P("Half the selective compounds are found after <b>32</b> MEA runs against <b>52</b> at "
-          "random (51.4 on average, 95% range 41–61). A perfect oracle would need 25, so the "
-          "ranking captures about three quarters of the gain available at all. The chance control "
-          "landing at exactly 0.500 is not cosmetic — see below.", "cap"),
+        P("Half the selective compounds are found after <b>32</b> MEA runs on the pre-declared "
+          "split, against an exact random-order mean of <b>51.5</b> (95% range 41–62); across "
+          "200 independent splits the figure is 33–34 runs. A perfect oracle would need 25, so "
+          "the ranking captures roughly three quarters of the gain available at all.", "cap"),
         P("5 · Validation, and four attempts to break the result", "h2"),
-        callout("A defect we found in our own evaluation, and fixed",
-                "Cross-validation produces one model per fold, and nothing makes five models' "
-                "probabilities comparable. Pooling raw scores into one ranking mixes five scales: "
-                "our prevalence baseline — a constant per fold, which <i>must</i> score chance — "
-                "came out at ROC 0.473, and every ranking metric inherited the bias. Ranking each "
-                "score within its own fold puts the control at exactly 0.500 and raises read-across "
-                "from 0.803 to 0.828. Both numbers are published side by side and a regression test "
-                "prevents the raw version returning. We also found and fixed a conformal procedure "
-                "calibrated on a different model from the one making the predictions, and an "
-                "operating threshold taken from the evaluation set's own labels.", ACCENT),
+        callout("An independent audit, and the test that matters most",
+                "A separate agent, not sharing our code, reproduced the evaluation from the "
+                "frozen commit with its own protocol and pre-fixed seeds: <b>all 185 numeric "
+                "fields match</b>, a from-scratch re-implementation agrees to 5.55×10⁻¹⁷, and "
+                "labels rebuilt independently from the EPA Excel are <b>136/136 identical</b>. "
+                "Its decisive test: <b>999 label permutations between equal-size scaffolds, with "
+                "the outer folds, the inner selection and the predictions all refitted each "
+                "time</b>. None reached the observed AUC — <b>p = 0.001</b> (0.003 for the assay "
+                "budget, 0.004 Bonferroni-corrected). The null it rejects is that structure "
+                "carries no information about this endpoint. It also found real defects, fixed "
+                "here, and two that remain open (§9).", ACCENT),
         Spacer(1, 4),
-        fig("04_robustness.png", 0.95),
+        fig("04_robustness.png", 0.88),
     ]
 
     # ------------------------------------------------------------------ page 4
     st += [
-        P("<b>One split is not evidence.</b> Repeating the whole evaluation over 20 fold "
-          "assignments gives a median ROC of <b>0.776 (0.703–0.828)</b>. The pre-declared split "
-          "landed at the optimistic end, so 0.776 is the number to quote for accuracy. The "
-          "practical figure barely moves: <b>32 assays, range 31–37</b>, against 52 for every "
-          "split."),
+        P("<b>One split is not evidence.</b> Twenty fold assignments give a median ROC of "
+          "<b>0.776 (0.703–0.828)</b>; the pre-declared split landed at the optimistic end. "
+          "The audit went further with 200 fresh assignments: median <b>0.760</b> under the "
+          "same grouping rule, and <b>0.744</b> when groups are formed without looking at "
+          "the labels at all — the most conservative figure this result has. The practical "
+          "number moves less: <b>33–34 assays typically</b> (29–44 across 200 splits; 32 on "
+          "the pre-declared split) against an exact random-order mean of <b>51.5</b>, 95% "
+          "range 41–62."),
         P("<b>Is it memorising close relatives?</b> Read-across votes on measured analogues, so "
           "this is the obvious worry. Hiding every training analogue above a similarity cap answers "
           "it: at a cap of 0.7, ROC 0.820; at 0.5, ROC 0.799. There was little to memorise anyway — "
           "the median nearest-analogue Tanimoto is 0.36 and only 4% of chemicals have an analogue "
           "above 0.9. The structural forest ignores the similarity matrix and is flat across the "
           "cap: the internal control this test needs."),
-        P("<b>A harder split.</b> 72% of Bemis-Murcko scaffold groups hold a single chemical, so "
+        P("<b>Pooling across folds is a declared choice, not a repair.</b> Five folds produce "
+          "five models whose probabilities are not on a common scale, so a pooled ranking mixes "
+          "them: the prevalence control scores 0.473 pooled raw and exactly 0.500 once each "
+          "score is ranked within its own fold. We report the ranked version and publish all "
+          "three variants, which agree — read-across is <b>0.828</b> ranked, <b>0.822</b> as "
+          "the mean of per-fold AUCs, <b>0.803</b> pooled raw. The result does not depend on "
+          "the choice."),
+        P("<b>A harder split.</b> 73 of the 81 Bemis-Murcko scaffold groups hold a single "
+          "chemical — 90% of the groups, 72% of the chemicals — so "
           "scaffold-held-out is close to leave-one-out. Holding out whole Butina clusters at 0.6 "
           "similarity drops performance to 0.74–0.77 — still far above chance, but the three model "
           "families converge. <b>Read-across being the best model is specific to the scaffold "
@@ -318,19 +331,22 @@ def build():
           "does not depend on the positives that are hardest to defend, and is stronger without "
           "them."),
         KeepTogether([P("6 · Saying \"I don't know\"", "h2"),
-        P("A triage tool that answers every question is not calibrated, it is guessing. Coverage is "
-          "<b>measured on held-out scaffolds, not assumed</b>: 89.2% against the 90% promised "
-          "(87.8% and 90.6% by class). With 102 held-out chemicals the standard error on a coverage "
-          "of 0.90 is about 3 points, so these agree. The honest cost: the prediction set is "
+        P("A triage tool that answers every question is not calibrated, it is guessing. "
+          "Coverage is <b>measured on held-out scaffolds, not assumed</b> — and it belongs to "
+          "a specific model, which matters because the two here differ. Structural forest: "
+          "<b>89.2%</b> against the 90% promised (87.8% and 90.6% by class). Portable "
+          "read-across, the one that ships, measured externally by the audit: <b>94.1%</b>, "
+          "median 95.1% over 20 fresh splits — it over-covers, which is the conservative "
+          "direction, at the cost of more both-class sets. The honest price: the set is "
           "uninformative for 63% of chemicals and 7.8% fall outside the applicability domain. "
           "Those are the queries where the right answer is a shrug, and the tool gives one."),
-        fig("05_uncertainty.png", 0.90)]),
+        fig("05_uncertainty.png", 0.82)]),
         P("7 · Scope, and what lies outside it", "h2"),
         P("The 28 chemicals whose network effect appears only at lethal concentrations are excluded "
           "from the primary comparison, and they are not a random 28: they carry 22 scaffolds that "
           "then appear nowhere in the modelled set, and they form a coherent mechanistic family — "
           "rotenone, valinomycin, tributyltin, five strobilurins, two statins, chlordane, "
-          "endosulfan, MPP⁺. So the harder question is asked as well: <b>selective activity against "
+          "endosulfan, MPP⁺. So the harder question is asked too: <b>selective activity against "
           "everything else, cytotoxicants included.</b> Read-across scores <b>0.696 (0.595–0.784)</b> "
           "there, 44 assays against 65.5 at random — lower, as it should be, with the interval "
           "still excluding chance. The model does rank several of those cytotoxicants highly, and "
@@ -375,7 +391,7 @@ def build():
           "believed, and they reproduce exactly. What the ablation does <i>not</i> establish: the "
           "two arms did not face identical network conditions, no accuracy was measured because "
           "none of the twenty has a known outcome, and this is one run, not a benchmark."),
-        fig("07_agent.png", 0.88,
+        fig("07_agent.png", 0.78,
             "The ranking's own view of the same twenty. Nine come back undecided and none of the "
             "five recommended carries a confident positive call — they are the chemicals with the "
             "strongest analogue evidence, which is what a triage list is."),
@@ -386,7 +402,12 @@ def build():
           "not transfer unchanged to an unselected library, and we do not claim it does. "
           "&nbsp;<b>Concordance, not external validation:</b> all 136 labelled chemicals sit inside "
           "the wider EPA screen of 460, so the second dataset is a cohort concordance check. "
-          "&nbsp;<b>One assay, one laboratory, one developmental window.</b> &nbsp;<b>Not a safety "
+          "&nbsp;<b>Two inconsistencies found by the audit remain open:</b> the "
+          "applicability-domain threshold uses one similarity reference to compute and "
+          "another to apply (94/102 in domain, 88/102 if made consistent), and the core "
+          "library and the exported scorer disagree on whether a salt is modellable — "
+          "neither changes the ranking, both change who gets an answer. &nbsp;<b>One assay, "
+          "one laboratory, one developmental window.</b> &nbsp;<b>Not a safety "
           "verdict:</b> a negative <i>in vitro</i> result does not exclude developmental "
           "neurotoxicity — the OECD guidance says so directly."),
         P("10 · Next steps", "h2"),
@@ -398,23 +419,18 @@ def build():
           "inside the EPA screen, and a pre-declared graph-neural-network comparison once there "
           "is enough data to make one meaningful."),
         P("Originality and resources", "h2"),
-        P("<b>All code, figures, results and text were created during the event.</b> The author has "
-          "a separate, unrelated project (NeuroChip Twin) entered in another competition; "
-          "<b>no code, model, preprocessing, text, figure or video from it is used here</b> — "
-          "DNT-Scout is a clean-room project with a new question, a new repository and new code. "
-          "Data: US EPA network-formation assay (Shafer et al. 2019, DOI 10.23719/1503191) and "
-          "PubChem, both public domain, re-downloaded from source and pinned by SHA256; raw data "
-          "are not redistributed. Software: RDKit, scikit-learn, NumPy, pandas, Matplotlib — all "
-          "open-source and permissively licensed. <b>No pretrained models, no proprietary models, "
-          "no paid APIs.</b> Claude (Anthropic) was used as a programming and writing assistant "
-          "under the author's direction; every scientific claim was checked against executed code, "
-          "and every number in this document is produced by a script in the public repository. "
-          "Where a result turned out weaker than first reported, the weaker number is the one "
+        P("<b>All code, figures, results and text were created during the event.</b> The author "
+          "has a separate, unrelated project (NeuroChip Twin) in another competition; <b>no code, "
+          "model, preprocessing, text, figure or video from it is used here</b> — DNT-Scout is a "
+          "clean-room project with a new question, repository and code. Data: US EPA "
+          "network-formation assay (Shafer et al. 2019, DOI 10.23719/1503191) and PubChem, both "
+          "public domain, re-downloaded and pinned by SHA256; raw data are not redistributed. "
+          "Software: RDKit, scikit-learn, NumPy, pandas, Matplotlib. <b>No pretrained models, no "
+          "proprietary models, no paid APIs.</b> Claude (Anthropic) assisted with programming and "
+          "writing under the author's direction; every claim was checked against executed code, "
+          "and where a result turned out weaker than first reported, the weaker number is the one "
           "published. Solo entry; full declaration in <b>docs/resource_declaration.md</b>.", "body"),
-        Spacer(1, 3),
-        P("Reproducibility: <b>pip install -e .</b> then four scripts regenerate every number and "
-          "figure above; <b>pytest</b> runs 21 tests, four of which exist specifically to stop the "
-          "defects described in §5 from coming back.", "cap"),
+        P("Reproducibility: <b>pip install -e .</b> then four scripts regenerate every number and figure above; <b>pytest</b> runs 23 tests, six of them written to stop the defects in §5 coming back.", "cap"),
     ]
 
     doc.build(st)

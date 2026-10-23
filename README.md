@@ -10,10 +10,10 @@ evidence for. It is a triage tool for a laboratory queue, not a safety verdict.
 ![How DNT-Scout works](results/figs/01_pipeline.gif)
 
 <table>
-<tr><td><b>Headline</b></td><td><b>32</b> microelectrode-array runs instead of <b>52</b> to find half the selectively active compounds — a third of the laboratory work removed, stable at 31–37 runs across 20 independent splits.</td></tr>
+<tr><td><b>Headline</b></td><td><b>32</b> microelectrode-array runs instead of <b>51.5</b> to find half the selectively active compounds — about a third of the laboratory work removed, and 33–34 runs typically across 200 independent splits.</td></tr>
 <tr><td><b>Data</b></td><td>136 chemicals from the US EPA network-formation assay (Shafer et al. 2019), public domain, re-downloaded from source.</td></tr>
-<tr><td><b>Validation</b></td><td>Scaffold-held-out and chemical-cluster-held-out cross-validation, a chance control that lands at exactly 0.500, and a similarity cap that rules out memorised near-duplicates.</td></tr>
-<tr><td><b>Uncertainty</b></td><td>Mondrian conformal prediction at a nominal 90%; measured coverage 89.2%. The tool abstains on 63% of queries and says so.</td></tr>
+<tr><td><b>Validation</b></td><td>Scaffold- and cluster-held-out cross-validation, a similarity cap that rules out memorised near-duplicates, and an independent audit whose <b>999-permutation test gives p = 0.001</b>.</td></tr>
+<tr><td><b>Uncertainty</b></td><td>Mondrian conformal prediction at a nominal 90%; measured coverage 89.2% for the structural forest, 94.1% for the portable read-across. The tool abstains on 63% of queries and says so.</td></tr>
 <tr><td><b>Licence</b></td><td>MIT (code) · the underlying EPA data are US Government work, public domain.</td></tr>
 </table>
 
@@ -97,9 +97,12 @@ honestly be claimed.
 ![Robustness](results/figs/04_robustness.png)
 
 **One split is not evidence.** Repeating the entire evaluation over 20 fold assignments gives a
-median ROC of **0.776 (0.703–0.828)** for read-across. The pre-declared split happened to land at
-the optimistic end of that range, so 0.776 is the number to quote for accuracy. The *practical*
-figure barely moves: **32 assays, range 31–37**, against 52 for every split.
+median ROC of **0.776 (0.703–0.828)** for read-across; the pre-declared split landed at the
+optimistic end of that range. An [independent audit](#independent-audit) went further, with 200
+fresh assignments: median ROC **0.760** under the same grouping rule, and **0.744** when the groups
+are formed without looking at the labels at all — the most conservative number this result has.
+The practical figure moves less: **33–34 assays typically** (29–44 across 200 splits; 32 on the
+pre-declared split) against an exact random-order mean of **51.5 (95% range 41–62)**.
 
 **Is it memorising close relatives?** Read-across is a weighted vote of measured analogues, so the
 obvious worry is that it recognises near-duplicates rather than generalising. Hiding every training
@@ -108,9 +111,9 @@ was little to memorise in any case — the median nearest-analogue similarity ac
 and only 4% of chemicals have an analogue above 0.9. The structural forest ignores the similarity
 matrix entirely and is flat across the cap, which is the internal control this panel needs.
 
-**A harder split.** 72% of Bemis-Murcko scaffold groups contain a single chemical, so
-scaffold-held-out is close to leave-one-out and is not the structural-novelty test its name
-suggests. Holding out whole Butina clusters at 0.6 similarity is harder, and performance falls to
+**A harder split.** 73 of the 81 Bemis-Murcko scaffold groups contain a single chemical — 90% of
+the groups, which is 72% of the chemicals — so scaffold-held-out is close to leave-one-out and is
+not the structural-novelty test its name suggests. Holding out whole Butina clusters at 0.6 similarity is harder, and performance falls to
 0.74–0.77 — still far above chance, but with the three model families converging. **Read-across
 being the best model is specific to the scaffold split; structure carrying real signal is not.**
 
@@ -129,6 +132,38 @@ positives that are hardest to defend; it is stronger without them. (Under the st
 structural forest edges ahead of read-across, with overlapping intervals — another reminder that
 which model wins is not the robust part of this result.)
 
+### Independent audit
+
+On 2026-10-23 this project was audited by a **separate agent that did not share our code**, working
+from the frozen commit `38b00be` with its own protocol and seeds fixed before anything was run. It
+is the strongest evidence here, so it is reported in full rather than summarised away.
+
+| What it did | What it found |
+|---|---|
+| Reproduced the evaluation in an isolated copy | **All 185 numeric fields match** |
+| Re-implemented read-across, grouping and nested selection from scratch | Predictions agree to **5.55 × 10⁻¹⁷** |
+| Rebuilt the labels independently from the EPA Excel | **136 / 136 identical**; the three input SHA256 match |
+| **999 label permutations between equal-size scaffolds, refitting folds, inner selection and predictions each time** | **None reaches the observed AUC. p = 0.001** (p = 0.003 for the assay budget; p = 0.004 Bonferroni-corrected across the four model families) |
+| Exact random-order distribution, no Monte Carlo | mean **51.5**, exact 95% interval **41–62**; the chance of ≥25 positives in 32 random picks is **3.68 × 10⁻⁵** |
+| 10,000 random tie-breaks | the budget stays at **32** — not an artefact of row order |
+| 200 fresh fold assignments | median ROC **0.760** (original grouping rule) and **0.744** (groups formed without looking at labels) |
+| The test suite | **23 / 23 pass** |
+
+The permutation test is the part that matters most. It does not merely reshuffle predictions: it
+re-runs the entire learning procedure — outer folds, inner hyperparameter selection and all — on
+999 relabelled datasets that preserve scaffold sizes, within-group correlation and the number of
+positives. **The null it rejects is "structure carries no information about this endpoint", and it
+rejects it at p = 0.001.**
+
+Its stated limits, which we adopt: the null is conditional on scaffold sizes and on that notion of
+exchangeability, so it does not cover every possible biological bias; and 999 permutations of one
+cohort are not 999 independent studies. The audit also found the real defects listed above — the
+group/chemical denominator confusion, the unlabelled coverage figure, an applicability-domain
+threshold computed against one reference and applied against another (94/102 in domain versus
+88/102 if made consistent), and a salt-versus-mixture policy that differs between the core library
+and the exported scorer. The first two are fixed above; the last two are open and are listed in the
+limitations.
+
 ## 5 · Saying "I don't know"
 
 A triage tool that answers every question is not calibrated, it is guessing. Each prediction comes
@@ -137,10 +172,14 @@ applicability-domain check based on similarity to the nearest measured analogue.
 
 ![Uncertainty](results/figs/05_uncertainty.png)
 
-Coverage is **measured on held-out scaffolds, not assumed**: 89.2% overall against the 90%
-promised, 87.8% on the selective class and 90.6% on the no-effect class. With 102 held-out
-chemicals the standard error on a coverage of 0.90 is about 3 points, so these agree with the
-promise. The honest cost is that the set is uninformative — it contains both outcomes — for 63% of
+Coverage is **measured on held-out scaffolds, not assumed** — and it belongs to a *specific
+model*, which is worth saying because the two in this project differ. For the **structural forest**
+evaluated here: 89.2% overall against the 90% promised, 87.8% on the selective class and 90.6% on
+the no-effect class. For the **portable read-across** that ships in `score_candidates.py`, measured
+externally by an independent audit: **94.1%** on the pre-declared split and a median of 95.1% over
+20 fresh ones — it over-covers, which is the conservative direction, at the cost of returning more
+both-class sets. With 102 held-out chemicals the standard error on a coverage of 0.90 is about 3
+points. The honest cost is that the set is uninformative — it contains both outcomes — for 63% of
 chemicals, and 7.8% fall outside the applicability domain altogether. Those are the queries where
 the correct output is a shrug, and the tool gives one.
 
@@ -238,16 +277,19 @@ you cannot re-fetch and verify yourself.
 
 ### A note on pooling across folds
 
-Worth stating plainly, because it is a trap that is easy to fall into and invisible once you have.
 Cross-validation produces one model per fold, and nothing makes five models' probabilities
-comparable to each other. Pooling the raw scores into a single ranking therefore mixes five scales,
-and the damage is measurable: the prevalence baseline — a constant per fold, which *must* score
-chance — came out at ROC 0.473 when pooled raw. Every ranking metric in the project inherited that
-bias. Converting each score to its rank *within its own fold* puts the control back at exactly
-0.500 and lifts read-across from 0.803 to 0.828. Both numbers are reported side by side in
-[`results/evaluation.json`](results/evaluation.json), and a
-[regression test](tests/test_core.py) fails if the raw-pooled version ever becomes the headline
-again.
+comparable to each other, so pooling the raw scores into one ranking mixes five scales. The effect
+is measurable: the prevalence baseline — a constant per fold, which *must* score chance — comes out
+at ROC 0.473 pooled raw, and at exactly 0.500 once each score is converted to its rank within its
+own fold.
+
+This project reports the ranked version as its headline, and that is **a declared evaluation
+choice, not a repair of a broken pipeline** — a distinction an independent audit was right to
+insist on. All three variants are published together in
+[`results/evaluation.json`](results/evaluation.json) and they agree: read-across scores **0.828**
+ranked within fold, **0.822** as the mean of the per-fold AUCs, and **0.803** pooled raw. The
+result does not depend on which one you prefer. A [regression test](tests/test_core.py) keeps the
+chance control pinned at 0.500 so the three cannot silently drift apart.
 
 ## 9 · Method, in one paragraph
 
@@ -274,6 +316,12 @@ is what makes the coverage guarantee follow.
   test set. It is reported as such.
 - **One assay, one laboratory, one developmental window.** Network formation in rat cortical
   cultures is a model of a model.
+- **Two internal inconsistencies found by the independent audit and not yet fixed.** The
+  applicability-domain threshold is computed as calibration-to-fit similarity but applied as
+  test-to-full-training similarity; making the reference consistent moves 94/102 in-domain to
+  88/102. And the core library keeps the largest organic fragment of a multicomponent record while
+  the exported scorer rejects it, so a salt is treated differently by the model and by the product.
+  Neither changes the ranking, both change who gets an answer, and both are open.
 
 ## Resource declaration
 
