@@ -5,4 +5,9 @@ __pycache__/
 *.pyc
 .venv/
 results/tmp/
+data/processed/
+!results/*.json
+!results/*.csv
+!results/*.png
+
 *.pt
