@@ -80,6 +80,25 @@ and returns a structured triage report with its refusals.
 - **Pre-declared ablation (E9):** automatic ranking alone versus ranking + agent, scored on the same
   20 withheld chemicals, so the platform's contribution is *measured* rather than asserted.
 
+## 4b · The demo film
+
+The 3–5 minute demonstration video is produced entirely from this repository by
+`video/tools/`, and its own credits are in `video/CREDITS.md`. The points that matter for this
+declaration:
+
+- **Narration** is the stock voice `bm_george` of **Kokoro-82M v1.0** (hexgrad), Apache-2.0,
+  synthesised offline on CPU. It is **not a clone or imitation of any real person**, and it is not
+  an extract of any other recording. The same voice appears in an earlier film by this author; it
+  is regenerated here from the model, so no audio from that production is reused.
+- **Music** is synthesised in code (three sine chords, low-passed) — no licensed track.
+- **Footage** is of two kinds only: frames drawn by our own code from our own results, and
+  headless 1920×1080 captures of the **public** SciencePal share link, taken by
+  `video/tools/capture_sciencepal.py`. No stock footage, no AI-generated imagery.
+- **Every number shown on screen** is read from a results file and logged, with its source path,
+  to `video/numbers_onscreen.json`. Figures quoted from the independent audit rather than
+  recomputed here are flagged `quoted_not_recomputed` in that log.
+- **Subtitles** are generated from the narration timings and keep the written form of every figure.
+
 ## 5 · AI assistance
 
 **Claude (Anthropic), via Claude Code, was used as a programming and writing assistant throughout**,

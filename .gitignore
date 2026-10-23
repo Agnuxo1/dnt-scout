@@ -14,3 +14,10 @@ data/processed/
 
 # in-flight independent audit by another agent: working material, not a deliverable
 work/
+
+# film build products: frames and the TTS venv are large and regenerable
+video/frames/
+video/.venv-tts/
+video/.build/
+video/audio/*.wav
+video/contact_sheet.png

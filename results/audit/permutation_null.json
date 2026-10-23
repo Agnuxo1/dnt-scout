@@ -1,0 +1,23 @@
+{
+ "n_permutations": 999,
+ "procedure": "labels swapped between equal-size Bemis-Murcko scaffolds, preserving within-group correlation and the number of positives; outer folds, inner hyperparameter selection and predictions all refitted on every permutation",
+ "source": "independent audit by a separate agent, 2026-10-23",
+ "observed": {
+  "roc_rank": 0.8276857945048721,
+  "assays50": 32
+ },
+ "roc_rank": {
+  "null_min": 0.31209087408548325,
+  "null_median": 0.5306122448979592,
+  "null_max": 0.7585675779745861,
+  "n_at_least_as_extreme": 0,
+  "p_value": 0.001
+ },
+ "assays50": {
+  "null_min": 31.0,
+  "null_median": 49.0,
+  "null_max": 68.0,
+  "n_at_least_as_extreme": 2,
+  "p_value": 0.003
+ }
+}
