@@ -243,8 +243,8 @@ def scene_s1(t: float, dur: float) -> Image.Image:
             x, y = xs[i * 7 % n], ys[i * 7 % n]
             col = tuple(int(c * a_tested) for c in OI["green"])
             d.ellipse([x - 7, y - 7, x + 7, y + 7], fill=col)
-    text(d, (110, 880), "every dot: a chemical in commerce", 24, False, MUTED, "la", a_field)
-    text(d, (110, 916), "green: tested on the developing nervous system", 24, False,
+    text(d, (110, 832), "every dot: a chemical in commerce", 24, False, MUTED, "la", a_field)
+    text(d, (110, 868), "green: tested on the developing nervous system", 24, False,
          OI["green"], "la", a_tested)
 
     a_q = ramp(t, 4.6, 0.9)
@@ -307,7 +307,7 @@ def scene_s2(t: float, dur: float) -> Image.Image:
         else:
             text(d, ((x0 + x1) / 2, y + 34), "nothing responded below the top dose",
                  21, False, FAINT, "ma", a)
-    text(d, (x0, 880), "concentration  →", 24, False, MUTED, "la", ramp(t, 1.0))
+    text(d, (x0, 862), "concentration  →", 24, False, MUTED, "la", ramp(t, 1.0))
 
     a_rule = ramp(t, 4.0, 0.8)
     rrect(img, [1240, 240, 1850, 430], 18, fill=(18, 28, 46), outline=OI["amber"], width=2,
@@ -330,7 +330,7 @@ def scene_s2(t: float, dur: float) -> Image.Image:
             a = ramp(t, 5.4 + i * 0.3, 0.7)
             text(d, (1300, y), v, 54, True, col, "la", a)
             text(d, (1400, y + 18), lab, 26, False, MUTED, "la", a)
-        text(d, (1300, 840), "the inconclusive ones are published,\nnever counted as negatives",
+        text(d, (1300, 826), "the inconclusive ones are published,\nnever counted as negatives",
              22, False, FAINT, "la", ramp(t, 6.6, 0.8), spacing=10)
     return fade(img, t, dur)
 
@@ -449,9 +449,12 @@ def scene_s4(t: float, dur: float) -> Image.Image:
         text(d, (1450, 604), "area under the curve", 22, False, MUTED, "la", a_roc)
         text(d, (1450, 646), N("results/evaluation.json", "models.read_across.roc_auc", ".3f",
                                "S4 ROC"), 46, True, OI["amber"], "la", a_roc)
-        text(d, (1450, 712), "0.776 median over 20 other splits", 21, False, MUTED, "la",
+        text(d, (1450, 712), "%s median over 20 other splits"
+             % N("results/audit/audit_02_validity.json",
+                 "B_repeated_cv_summary.2.roc_rank_median", ".3f", "S4 median of 20"),
+             21, False, MUTED, "la",
              ramp(t, 7.1, 0.7))
-    text(d, (120, 900), "retrospective evaluation · 33–34 assays typical across 200 independent splits",
+    text(d, (120, 866), "retrospective evaluation · 33–34 assays typical across 200 independent splits",
          23, False, FAINT, "la", ramp(t, 7.6, 0.8))
     return fade(img, t, dur)
 
@@ -463,9 +466,11 @@ def scene_s5(t: float, dur: float) -> Image.Image:
            t, "an independent agent that never saw our code")
     d = ImageDraw.Draw(img)
 
-    checks = [("185 / 185", "numeric fields reproduced"),
-              ("5.55 x 10⁻¹⁷", "agreement of a from-scratch rebuild"),
-              ("136 / 136", "labels rebuilt from the agency spreadsheet")]
+    checks = [(quoted("185 / 185", "independent audit, 2026-10-23", "S5 reproduction"), "numeric fields reproduced"),
+              (quoted("5.55 x 10⁻¹⁷", "independent audit, 2026-10-23", "S5 rebuild"),
+               "agreement of a from-scratch rebuild"),
+              (quoted("136 / 136", "independent audit, 2026-10-23", "S5 labels"),
+               "labels rebuilt from the agency spreadsheet")]
     for i, (big, small) in enumerate(checks):
         a = ramp(t, 0.6 + i * 0.5, 0.7)
         y = 230 + i * 128
@@ -538,9 +543,11 @@ def scene_s6(t: float, dur: float) -> Image.Image:
     else:
         text(d, (720, 480), "[ SciencePal capture ]", 30, False, FAINT, "mm", ramp(t, 0.4))
 
-    items = [("19 / 20", "structures resolved", OI["green"]),
-             ("1", "confident call — the only one", OI["amber"]),
-             ("6", "refused, in three distinct categories", OI["purple"])]
+    ABL = "results/sciencepal/ABLATION.md"
+    items = [(quoted("19 / 20", ABL, "S6 resolved"), "structures resolved", OI["green"]),
+             (quoted("1", ABL, "S6 decisive"), "confident call — the only one", OI["amber"]),
+             (quoted("6", ABL, "S6 refusals"), "refused, in three distinct categories",
+              OI["purple"])]
     for i, (big, small, col) in enumerate(items):
         a = ramp(t, 2.0 + i * 0.5, 0.7)
         y = 250 + i * 150
@@ -549,11 +556,11 @@ def scene_s6(t: float, dur: float) -> Image.Image:
 
     a_story = ramp(t, 4.6, 1.0)
     if a_story > 0.02:
-        rrect(img, [120, 760, 1850, 900], 16, fill=(18, 28, 46), outline=OI["sky"], width=2,
+        rrect(img, [120, 726, 1850, 866], 16, fill=(18, 28, 46), outline=OI["sky"], width=2,
               alpha=a_story)
-        text(d, (150, 790), "Its chemical database was blocked. It said so, found another route, "
+        text(d, (150, 756), "Its chemical database was blocked. It said so, found another route, "
                             "and recovered a salt", 25, False, INK, "la", a_story)
-        text(d, (150, 834), "our own pipeline had thrown away — the only one of the twenty it "
+        text(d, (150, 800), "our own pipeline had thrown away — the only one of the twenty it "
                             "could call with confidence.", 25, False, INK, "la",
              ramp(t, 5.2, 0.8))
     return fade(img, t, dur)
@@ -581,14 +588,14 @@ def scene_s7(t: float, dur: float) -> Image.Image:
             rrect(img, [x - 108, 596, x + 108, 668], 14, fill=(20, 30, 50),
                   outline=SELECTIVE, width=2, alpha=a)
             text(d, (x, 632), nm, 23, True, SELECTIVE, "mm", a)
-        text(d, (960, 712), "the five it chose are a prediction — one experiment would settle them",
+        text(d, (960, 706), "the five it chose are a prediction — one experiment would settle them",
              25, False, MUTED, "mm", ramp(t, 5.4, 0.8))
 
     a4 = ramp(t, 6.4, 0.9)
     if a4 > 0.02:
-        d.line([560, 790, 1360, 790], fill=FAINT, width=1)
-        text(d, (960, 824), "github.com/Agnuxo1/dnt-scout", 30, True, INK, "mm", a4)
-        text(d, (960, 872), "data, code and every number in this film are public and reproducible",
+        d.line([560, 764, 1360, 764], fill=FAINT, width=1)
+        text(d, (960, 798), "github.com/Agnuxo1/dnt-scout", 30, True, INK, "mm", a4)
+        text(d, (960, 846), "data, code and every number in this film are public and reproducible",
              22, False, MUTED, "mm", ramp(t, 6.8, 0.8))
     return fade(img, t, dur, fout=0.9)
 
