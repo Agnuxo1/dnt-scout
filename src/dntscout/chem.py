@@ -51,6 +51,13 @@ def standardise(smiles: str | None) -> Standardised:
         return Standardised(None, None, None, ("parse_failed",))
     flags: list[str] = []
     n_before = len(Chem.GetMolFrags(mol))
+    # A simple inorganic counterion can be removed. Two carbon-containing
+    # fragments are ambiguous (organic salt or mixture): require an explicitly
+    # curated parent instead of silently selecting the largest molecule.
+    carbon_fragments = sum(any(a.GetSymbol() == "C" for a in frag.GetAtoms())
+                           for frag in Chem.GetMolFrags(mol, asMols=True))
+    if carbon_fragments > 1:
+        flags.append("multicomponent")
     mol = rdMolStandardize.Cleanup(mol)
     parent = rdMolStandardize.FragmentParent(mol)
     parent = rdMolStandardize.Uncharger().uncharge(parent)
@@ -59,7 +66,8 @@ def standardise(smiles: str | None) -> Standardised:
     if len(Chem.GetMolFrags(parent)) > 1 or n_before > 1:
         # FragmentParent keeps the largest fragment; flag so the caller can decide.
         if len(Chem.GetMolFrags(parent)) > 1:
-            flags.append("multicomponent")
+            if "multicomponent" not in flags:
+                flags.append("multicomponent")
         else:
             flags.append("salt_stripped")
     if not any(a.GetSymbol() == "C" for a in parent.GetAtoms()):

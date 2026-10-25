@@ -53,14 +53,17 @@ Nothing in the repository is downstream of a file a reviewer cannot re-fetch and
 
 | Resource | Version policy | Licence | Role |
 |---|---|---|---|
-| RDKit | pinned in `pyproject.toml` | BSD-3-Clause | structure standardisation, fingerprints, scaffolds, Butina clustering |
-| scikit-learn | pinned | BSD-3-Clause | logistic regression, random forest, metrics |
-| NumPy, pandas, pyarrow | pinned | BSD-3-Clause / Apache-2.0 | numerics and tabular data |
-| Matplotlib | pinned | PSF-based | every figure |
-| pytest | pinned | MIT | the 21-test suite |
+| RDKit | declared, not version-pinned in `pyproject.toml` | BSD-3-Clause | structure standardisation, fingerprints, scaffolds, Butina clustering |
+| scikit-learn | declared, not pinned | BSD-3-Clause | logistic regression, random forest, metrics |
+| NumPy, pandas, pyarrow | declared, not pinned | BSD-3-Clause / Apache-2.0 | numerics and tabular data |
+| Matplotlib | declared, not pinned | PSF-based | every figure |
+| pytest | optional development dependency, not pinned | MIT | the 31-test suite |
 
-**No pretrained models, no proprietary models, no paid APIs, no external inference services.**
-Every model in this project is small, trained from scratch on the 102 modelled chemicals, and
+**No pretrained weights or external inference services are required by the automated ranking.**
+SciencePal's Biology Agent and Anthropic's proprietary LLMs were used for agent work, development
+and exploratory paid-API ablations. The latter are disclosed in `AUDIT_UPDATE_20261025.md`; they
+are not a SciencePal execution and do not establish improvement. The numerical ranking models
+are small, trained from scratch on the 102 modelled chemicals, and
 reproducible on a laptop CPU in minutes. The read-across implementation is **of the GenRA kind** —
 written here from the published method — and is **not** the US EPA GenRA service.
 

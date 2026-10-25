@@ -2,7 +2,8 @@
 
 The hackathon's checklist has four numbered items. Each is below, in the order and wording the
 official page uses, so it can be copied straight into the form. Nothing here needs editing; the
-only thing still missing is the video, which Fran records from `video_script.md`.
+film is already online. The 25 October correction is described in `AUDIT_UPDATE_20261025.md`;
+use the updated overview and resource declaration alongside the historical SciencePal trace.
 
 **Checked against the rules page as read on 2026-10-23.** Materials are in English, which the rules
 accept ("Submit materials in Chinese or English").
@@ -87,7 +88,7 @@ event; team contributions; originality; and compliance. The short form:
 > EPA network-formation assay (Shafer et al. 2019, DOI 10.23719/1503191) and PubChem, both public
 > domain, re-downloaded from source and pinned by SHA256; raw data are not redistributed. Software:
 > RDKit, scikit-learn, NumPy, pandas, Matplotlib, all open-source and permissively licensed. No
-> pretrained models, no proprietary models, no paid APIs. Claude (Anthropic) assisted with
+> pretrained weights in the ranking model; proprietary SciencePal/Anthropic LLMs and exploratory paid API calls are disclosed in the audit update. Claude (Anthropic) assisted with
 > programming and writing under the author's direction; every scientific claim was checked against
 > executed code, and where a result turned out weaker than first reported, the weaker number is the
 > one published. Solo entry.

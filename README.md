@@ -169,9 +169,9 @@ exchangeability, so it does not cover every possible biological bias; and 999 pe
 cohort are not 999 independent studies. The audit also found the real defects listed above — the
 group/chemical denominator confusion, the unlabelled coverage figure, an applicability-domain
 threshold computed against one reference and applied against another (94/102 in domain versus
-88/102 if made consistent), and a salt-versus-mixture policy that differs between the core library
-and the exported scorer. The first two are fixed above; the last two are open and are listed in the
-limitations.
+88/102 with a consistent reference), and a salt-versus-mixture policy that differed between the core
+library and exported scorer. Both are corrected in the 25 October update; the rerun preserves the
+ranking and returns 88/102 in-domain. See [the correction and API ablation audit](docs/AUDIT_UPDATE_20261025.md).
 
 ## 5 · Saying "I don't know"
 
@@ -189,7 +189,7 @@ externally by an independent audit: **94.1%** on the pre-declared split and a me
 20 fresh ones — it over-covers, which is the conservative direction, at the cost of returning more
 both-class sets. With 102 held-out chemicals the standard error on a coverage of 0.90 is about 3
 points. The honest cost is that the set is uninformative — it contains both outcomes — for 63% of
-chemicals, and 7.8% fall outside the applicability domain altogether. Those are the queries where
+chemicals, and 13.7% fall outside the applicability domain after the 25 October reference correction. Those are the queries where
 the correct output is a shrug, and the tool gives one.
 
 ## 6 · Scope, and what is outside it
@@ -310,8 +310,8 @@ similarity-weighted k-nearest-analogue read-across of the kind US EPA GenRA is b
 random forest over the full feature matrix. Hyperparameters and the conformal calibration split are
 chosen by grouped cross-validation **inside each training fold**; the test fold is touched once, to
 predict. Confidence intervals resample whole scaffold groups, never individual chemicals. The
-conformal quantiles and the test scores they are applied to come from the same fitted model, which
-is what makes the coverage guarantee follow.
+conformal quantiles and test scores come from the same fitted model. Formal coverage additionally
+requires exchangeability; scaffold shift and domain filtering prevent an unconditional guarantee.
 
 ## 10 · Limitations
 
@@ -325,12 +325,14 @@ is what makes the coverage guarantee follow.
   test set. It is reported as such.
 - **One assay, one laboratory, one developmental window.** Network formation in rat cortical
   cultures is a model of a model.
-- **Two internal inconsistencies found by the independent audit and not yet fixed.** The
-  applicability-domain threshold is computed as calibration-to-fit similarity but applied as
-  test-to-full-training similarity; making the reference consistent moves 94/102 in-domain to
-  88/102. And the core library keeps the largest organic fragment of a multicomponent record while
-  the exported scorer rejects it, so a salt is treated differently by the model and by the product.
-  Neither changes the ranking, both change who gets an answer, and both are open.
+- **Corrections verified 25 October.** Calibration and test now use the same fit-only similarity
+  reference: 88/102 in-domain, with unchanged read-across scores. Core and portable scorer accept
+  one organic fragment with inorganic counterions and reject multiple carbon-containing fragments;
+  organic salts need an explicitly curated parent. The original SciencePal trace and film document
+  the earlier version, and remain available as historical evidence.
+- **API ablation is exploratory.** Reformulated B/B-prime arms were run after a failed original
+  arm despite the no-retry rule. They are kept separate from confirmatory evidence and from the
+  SciencePal run. Neither establishes a predictive improvement; see the audit update.
 
 ## Resource declaration
 
@@ -339,8 +341,8 @@ is what makes the coverage guarantee follow.
 | **Created during the event** | All code in `src/` and `scripts/`, the outcome definition, every figure, every result, the agent package and this document. |
 | **Prior work by the author** | Francisco Angulo de Lafuente works on computational neuroscience and has a separate, unrelated project (NeuroChip Twin) entered in another competition. **No code, model, preprocessing, text, figure or video from that work is used here.** DNT-Scout is a clean-room project: new question, new repository, new code, written from scratch. |
 | **Third-party data** | US EPA network-formation assay, Shafer et al. 2019, ScienceHub DOI [10.23719/1503191](https://doi.org/10.23719/1503191) — US Government work, public domain. Structures from PubChem (public domain). Re-downloaded from source; SHA256 manifest in `docs/provenance.json`. |
-| **Third-party software** | RDKit (BSD-3), scikit-learn (BSD-3), NumPy, pandas, Matplotlib. No proprietary models, no paid APIs. |
-| **AI assistance** | Claude (Anthropic) was used as a programming and writing assistant throughout, under the author's direction. All scientific claims were checked against executed code; every number in this README is produced by a script in this repository. |
+| **Third-party software** | RDKit (BSD-3), scikit-learn (BSD-3), NumPy, pandas, Matplotlib. Ranking models use no pretrained weights; proprietary SciencePal/Anthropic LLMs and paid API ablations are declared separately. |
+| **AI assistance** | Claude (Anthropic) was used as a programming and writing assistant throughout, under the author's direction. Numerical claims are checked against executed code; historical and corrected evaluations are kept separate in the audit update. |
 | **Compute** | A single workstation and one Linux server with consumer GPUs. The models are small enough to train on a laptop; no GPU is required to reproduce anything here. |
 
 ## Citation and licence

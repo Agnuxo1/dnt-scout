@@ -158,7 +158,10 @@ def main() -> None:
         thr_of[te] = float(np.quantile(m_full.predict_proba1(X[tr]), 1 - y_tr.mean()))
         chosen["fingerprint_forest"].append(f"{m_fp.name},ad>={ad_thr:.2f},"
                                             f"n_cal={len(cal_idx)}")
-        s, d = cp.predict_set(m_cal.predict_proba1(X[te]), similarity=nn_sim[te])
+        # Domain calibration and test must use the same reference bank. The
+        # ranking model's full training bank remains separate in nn_sim.
+        nn_sim_cal_model = ReadAcross.max_similarity(sim[np.ix_(te, tr[fit_idx])])
+        s, d = cp.predict_set(m_cal.predict_proba1(X[te]), similarity=nn_sim_cal_model)
         for j, i in enumerate(te):
             cp_sets[i] = s[j]
         cp_indomain[te] = d

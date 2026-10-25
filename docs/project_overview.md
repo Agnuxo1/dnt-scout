@@ -1,3 +1,5 @@
+> Audit update 25 October: use AUDIT_UPDATE_20261025.md and the updated five-page PDF for corrected domain (88/102), salt policy and paid-API disclosure. The original demo and its numbers remain historical.
+
 # DNT-Scout
 ### Structure-based triage for developmental neurotoxicity screening, with calibrated abstention
 
@@ -68,8 +70,8 @@ the test fold is touched once, to predict.
 
 **Uncertainty.** Mondrian (class-conditional) conformal prediction at a nominal 90%, plus an
 applicability-domain check on similarity to the nearest measured analogue. The conformal quantiles
-and the test scores they are applied to come from the *same fitted model*, which is what makes the
-coverage guarantee follow.
+and test scores come from the *same fitted model*. Formal coverage also requires exchangeability;
+scaffold shift and domain filtering preclude an unconditional guarantee.
 
 ![Endpoint definition](../results/figs/02_endpoint.png)
 

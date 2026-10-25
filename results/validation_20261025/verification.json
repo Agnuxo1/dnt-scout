@@ -1,0 +1,16 @@
+{
+  "score_max_absolute_difference": {
+    "score_prevalence": 0.0,
+    "score_physchem_logistic": 0.0,
+    "score_read_across": 0.0,
+    "score_fingerprint_forest": 3.3306690738754696e-16
+  },
+  "old_in_domain": 94,
+  "corrected_in_domain": 88,
+  "sha256": {
+    "ablation_Bprime_summary.json": "e9bf1fbe47a2ce1c1c7bbc455b5230485d6fad889219e71cbb301dcfad205abb",
+    "ablation_B_summary.json": "161e47c3d21d3517dd7ddcd8f955237dbfa8c69cf961217f80b3a1a23330afde",
+    "evaluation.json": "a29cfc003e235b0f354298c5247ee68bf750d40336b8793d63ec4804a3d58de7",
+    "out_of_fold_predictions.csv": "f82e95adce9b05cc108e3e6704fe2b6dbff94f4228bcaf3e10a88d02ee209677"
+  }
+}

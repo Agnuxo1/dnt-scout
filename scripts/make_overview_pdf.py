@@ -257,7 +257,7 @@ def build():
           "fold is touched once, to predict. Intervals resample whole scaffold groups, never "
           "individual chemicals. <b>Uncertainty:</b> Mondrian conformal prediction at a nominal "
           "90% with an applicability-domain check, the quantiles and the test scores coming from "
-          "the same fitted model — which is what makes the guarantee follow."),
+          "the same fitted model. Scaffold shift can violate exchangeability; coverage is empirical."),
     ]
 
     # ------------------------------------------------------------------ page 3
@@ -288,7 +288,7 @@ def build():
                 "time</b>. None reached the observed AUC — <b>p = 0.001</b> (0.003 for the assay "
                 "budget, 0.004 Bonferroni-corrected). The null it rejects is that structure "
                 "carries no information about this endpoint. It also found real defects, fixed "
-                "here, and two that remain open (§9).", ACCENT),
+                "here; the remaining reference and salt inconsistencies were corrected on 25 October (§9).", ACCENT),
         Spacer(1, 4),
         fig("04_robustness.png", 0.88),
     ]
@@ -338,7 +338,7 @@ def build():
           "read-across, the one that ships, measured externally by the audit: <b>94.1%</b>, "
           "median 95.1% over 20 fresh splits — it over-covers, which is the conservative "
           "direction, at the cost of more both-class sets. The honest price: the set is "
-          "uninformative for 63% of chemicals and 7.8% fall outside the applicability domain. "
+          "uninformative for 63% of chemicals and 13.7% fall outside the corrected applicability domain. "
           "Those are the queries where the right answer is a shrug, and the tool gives one."),
         fig("05_uncertainty.png", 0.82)]),
         P("7 · Scope, and what lies outside it", "h2"),
@@ -379,18 +379,14 @@ def build():
                ["Literature support", "none", "<b>4 DOI-cited mechanistic claims</b>"]],
               [BODY_W * 0.40, BODY_W * 0.27, BODY_W * 0.33]),
         Spacer(1, 4),
-        P("<b>Result.</b> PubChem was IP-blocked from the SciencePal sandbox. The agent said so "
-          "instead of failing quietly, routed around it through NCI CACTUS and the US EPA "
-          "Substance Registry Service, and resolved 19 of 20 against our 16. One of the three it "
-          "recovered was <b>doxylamine</b> — a salt our automated pipeline had discarded, and the "
-          "only chemical of the twenty with a decisive conformal set (score 1.000). It also "
-          "<b>overruled the ranking</b>, dropping oxytetracycline because its nearest measured "
-          "analogue is tetracycline at T = 0.50, the highest similarity anywhere in the candidate "
-          "set, and tetracycline shows no effect — so the score was propped up by two far weaker "
-          "selective neighbours. Its three headline numbers were recomputed here before being "
-          "believed, and they reproduce exactly. What the ablation does <i>not</i> establish: the "
-          "two arms did not face identical network conditions, no accuracy was measured because "
-          "none of the twenty has a known outcome, and this is one run, not a benchmark."),
+        P("<b>Historical SciencePal run (23 October).</b> With PubChem blocked, the agent used "
+          "NCI CACTUS and US EPA identifiers to resolve 19/20 candidates versus 16/20 automatically. "
+          "An explicitly curated doxylamine parent scored 1.000; the agent also deprioritised "
+          "oxytetracycline using its measured tetracycline analogue (T = 0.50, no effect). "
+          "Those numerical claims were independently recomputed. <b>Limits:</b> network conditions "
+          "differed, none of the twenty has an observed outcome, and this single run measures "
+          "execution and resolution, not predictive accuracy. The corrected salt policy is "
+          "documented separately; the original trace and film remain historical evidence."),
         fig("07_agent.png", 0.78,
             "The ranking's own view of the same twenty. Nine come back undecided and none of the "
             "five recommended carries a confident positive call — they are the chemicals with the "
@@ -402,11 +398,10 @@ def build():
           "not transfer unchanged to an unselected library, and we do not claim it does. "
           "&nbsp;<b>Concordance, not external validation:</b> all 136 labelled chemicals sit inside "
           "the wider EPA screen of 460, so the second dataset is a cohort concordance check. "
-          "&nbsp;<b>Two inconsistencies found by the audit remain open:</b> the "
-          "applicability-domain threshold uses one similarity reference to compute and "
-          "another to apply (94/102 in domain, 88/102 if made consistent), and the core "
-          "library and the exported scorer disagree on whether a salt is modellable — "
-          "neither changes the ranking, both change who gets an answer. &nbsp;<b>One assay, "
+          "&nbsp;<b>Corrected 25 October:</b> a consistent fit-only domain reference returns 88/102 "
+          "in-domain; rankings are unchanged. Core and portable scorer now agree on salts and mixtures. "
+          "<b>Exploratory API ablation:</b> reformulated B/B-prime arms violated the no-retry rule "
+          "and establish no predictive gain. They are separate from the historical SciencePal demo. &nbsp;<b>One assay, "
           "one laboratory, one developmental window.</b> &nbsp;<b>Not a safety "
           "verdict:</b> a negative <i>in vitro</i> result does not exclude developmental "
           "neurotoxicity — the OECD guidance says so directly."),
@@ -425,12 +420,10 @@ def build():
           "clean-room project with a new question, repository and code. Data: US EPA "
           "network-formation assay (Shafer et al. 2019, DOI 10.23719/1503191) and PubChem, both "
           "public domain, re-downloaded and pinned by SHA256; raw data are not redistributed. "
-          "Software: RDKit, scikit-learn, NumPy, pandas, Matplotlib. <b>No pretrained models, no "
-          "proprietary models, no paid APIs.</b> Claude (Anthropic) assisted with programming and "
-          "writing under the author's direction; every claim was checked against executed code, "
-          "and where a result turned out weaker than first reported, the weaker number is the one "
-          "published. Solo entry; full declaration in <b>docs/resource_declaration.md</b>.", "body"),
-        P("Reproducibility: <b>pip install -e .</b> then four scripts regenerate every number and figure above; <b>pytest</b> runs 23 tests, six of them written to stop the defects in §5 coming back.", "cap"),
+          "Software: RDKit, scikit-learn, NumPy, pandas, Matplotlib. <b>No pretrained ranking "
+          "weights.</b> Proprietary SciencePal and Anthropic LLMs, including exploratory paid "
+          "API calls, are disclosed in <b>docs/resource_declaration.md</b>. Solo entry.", "body"),
+        P("Reproducibility: <b>pip install -e .</b> then four scripts regenerate every number and figure above; <b>pytest</b> passes 31 tests; historical and corrected results are retained separately.", "cap"),
     ]
 
     doc.build(st)

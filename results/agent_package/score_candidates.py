@@ -42,8 +42,12 @@ def standardise(smiles):
     if m is None:
         return None, ("parse_failed",)
     flags = []
-    if len(Chem.GetMolFrags(m)) > 1:
+    carbon_fragments = sum(any(a.GetSymbol() == "C" for a in frag.GetAtoms())
+                           for frag in Chem.GetMolFrags(m, asMols=True))
+    if carbon_fragments > 1:
         flags.append("multicomponent")
+    elif len(Chem.GetMolFrags(m)) > 1:
+        flags.append("salt_stripped")
     m = rdMolStandardize.Uncharger().uncharge(rdMolStandardize.FragmentParent(rdMolStandardize.Cleanup(m)))
     if m is None or m.GetNumAtoms() == 0:
         return None, ("empty_after_cleanup",)
