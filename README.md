@@ -31,7 +31,11 @@ Everything here is new work created during the event — see [Resource declarati
 
 ---
 
+**Contents** — [1 · The problem](#1--the-problem) · [Background](#background) · [2 · What counts as a hit](#2--what-counts-as-a-hit) · [3 · The result](#3--the-result) · [4 · Is the result real?](#4--is-the-result-real) · [5 · Saying "I don't know"](#5--saying-i-dont-know) · [6 · Scope, and what is outside it](#6--scope-and-what-is-outside-it) · [7 · The decision, on chemicals nobody has seen](#7--the-decision-on-chemicals-nobody-has-seen) · [8 · Reproduce it](#8--reproduce-it) · [9 · Method, in one paragraph](#9--method-in-one-paragraph) · [10 · Limitations](#10--limitations) · [Real-world applications](#real-world-applications) · [Possible improvements](#possible-improvements) · [Future work](#future-work) · [Resource declaration](#resource-declaration) · [Citation and licence](#citation-and-licence) · [Bibliography](#bibliography)
+
 ## 1 · The problem
+
+<p align="center"><img src="docs/readme/01-problem.gif" alt="Flow from chemicals in commerce to the 102 modelled chemicals" width="100%"><br><sub>Animated figure A1 — The gap and the data, with counts as stated in this README.</sub></p>
 
 Developmental neurotoxicity is among the most expensive endpoints in regulatory toxicology and one
 of the least covered: of the tens of thousands of chemicals in commerce, a few hundred have been
@@ -43,6 +47,37 @@ compounds nobody has tested, which ones go on the plate first?**
 
 That question has a precise, checkable answer: *how many assays do you have to run to find the
 actives?* It is the question this repository answers.
+
+## Background
+
+<p align="center"><img src="docs/readme/02-background.gif" alt="Animated timeline from 1996 to 2026 of the methods and data that DNT-Scout combines" width="100%"><br><sub>Animated figure A2 — Ingredients assembled before this work. Sources: bibliography below.</sub></p>
+
+DNT-Scout combines four ingredients that each have their own history. The data are the network-formation recordings
+of Shafer et al., in which rat cortical neurons are grown on microelectrode arrays and a chemical is judged by whether
+the culture still organises into a firing network [[1](#ref-1), [2](#ref-2)]; arrays had been proposed as a neurotoxicity
+testing platform a decade earlier [[3](#ref-3)], against the background of the in vivo developmental neurotoxicity
+study described in OECD Test Guideline 426 [[4](#ref-4)]. The modelling side rests on Bemis-Murcko molecular frameworks,
+used here to keep chemicals that share a scaffold in the same fold [[5](#ref-5)], on Butina clustering for the harder
+split [[6](#ref-6)], and on circular fingerprints and MACCS keys as representations [[7](#ref-7), [8](#ref-8)]. The prediction
+that gives the headline result is read-across, the logic behind the US EPA GenRA workflow [[9](#ref-9)], implemented with
+RDKit and scikit-learn [[10](#ref-10), [11](#ref-11)].
+
+The statement of confidence comes from conformal prediction, which turns a score into a prediction set with a
+coverage target [[12](#ref-12)]. The class-conditional (Mondrian) form used here asks for the target within each outcome
+class rather than on average [[13](#ref-13)], and a recent tutorial describes the framework and its assumptions
+[[14](#ref-14)]. Section 5 of this README measures, rather than assumes, how close the sets come to their nominal 90 %,
+and the independent audit tests significance with a permutation scheme that refits the whole procedure
+[[15](#ref-15)].
+
+The author has published related work in the same style of reporting, with pre-registered or audited evaluations and
+separate declaration of what each result does not show:
+[`egp-clinical-shield`](https://github.com/Agnuxo1/egp-clinical-shield) (a pre-registered evaluation of an
+on-device privacy layer for clinical notes) and
+[`enveda-casmi-2026-metfrag-ranking`](https://github.com/Agnuxo1/enveda-casmi-2026-metfrag-ranking) (a
+structure-ranking entry for a mass-spectrometry challenge). DNT-Scout is a clean-room project: as the
+[Resource declaration](#resource-declaration) states, nothing from the author's separate
+[`neurochip-twin`](https://github.com/Agnuxo1/neurochip-twin) work is used here, and the repositories above are listed
+as context, not as dependencies.
 
 ## 2 · What counts as a hit
 
@@ -147,6 +182,8 @@ On 2026-10-23 this project was audited by a **separate agent that did not share 
 from the frozen commit `38b00be` with its own protocol and seeds fixed before anything was run. It
 is the strongest evidence here, so it is reported in full rather than summarised away.
 
+<p align="center"><img src="docs/readme/03-audit.gif" alt="Seven check results from the independent audit shown as stat tiles" width="100%"><br><sub>Animated figure A3 — What the separate audit reproduced and re-built. Data: the table below, docs/SUBMISSION.md and docs/CODEX_INDEPENDENT_AUDIT_20261023.md.</sub></p>
+
 | What it did | What it found |
 |---|---|
 | Reproduced the evaluation in an isolated copy | **All 185 numeric fields match** |
@@ -157,6 +194,8 @@ is the strongest evidence here, so it is reported in full rather than summarised
 | 10,000 random tie-breaks | the budget stays at **32** — not an artefact of row order |
 | 200 fresh fold assignments | median ROC **0.760** (original grouping rule) and **0.744** (groups formed without looking at labels) |
 | The test suite | **23 / 23 pass** |
+
+<p align="center"><img src="docs/readme/04-permutation.gif" alt="Two histograms of 999 permutation results with the observed value marked" width="100%"><br><sub>Animated figure A4 — The 999-permutation null for ROC AUC and for the assay budget. Data: results/audit/permutation_null.csv and .json.</sub></p>
 
 The permutation test is the part that matters most. It does not merely reshuffle predictions: it
 re-runs the entire learning procedure — outer folds, inner hyperparameter selection and all — on
@@ -251,6 +290,8 @@ output in [`AGENT_REPORT.md`](results/sciencepal/AGENT_REPORT.md).
 | Refusals | 9, one bucket | 6, in **three distinct categories** |
 | Literature support | none | 4 DOI-cited mechanistic claims |
 
+<p align="center"><img src="docs/readme/05-sciencepal.gif" alt="Bars comparing ranking alone with ranking plus agent on four counts" width="100%"><br><sub>Animated figure A5 — Ranking alone versus ranking + agent on 20 unseen chemicals; one run, not a controlled comparison. Data: results/sciencepal/ABLATION.md.</sub></p>
+
 Two things the ranking could not do on its own. PubChem was **IP-blocked** from the SciencePal
 sandbox; the agent said so instead of failing quietly, routed around it through NCI CACTUS and the
 EPA Substance Registry Service, and so recovered **doxylamine** — a salt the automated pipeline had
@@ -266,6 +307,8 @@ identical network conditions, no accuracy was measured because none of the twent
 outcome, and this is one run, not a benchmark.
 
 ## 8 · Reproduce it
+
+<p align="center"><img src="docs/readme/06-reproduce.gif" alt="Terminal running pytest: 31 passed" width="100%"><br><sub>Animated figure A6 — A real run of <code>python -m pytest -v tests</code> on a copy of the published source: 31 tests pass (the audit update also reports 31; the count in the comment of the command block above predates it).</sub></p>
 
 ```bash
 git clone https://github.com/Agnuxo1/dnt-scout && cd dnt-scout
@@ -286,6 +329,8 @@ you cannot re-fetch and verify yourself.
 
 ### A note on pooling across folds
 
+<p align="center"><img src="docs/readme/07-pooling.gif" alt="Dumbbell chart of ROC AUC with raw pooled scores versus within-fold ranks" width="100%"><br><sub>Animated figure A7 — Pooled raw versus within-fold-ranked ROC AUC for the four models. Data: results/evaluation.json.</sub></p>
+
 Cross-validation produces one model per fold, and nothing makes five models' probabilities
 comparable to each other, so pooling the raw scores into one ranking mixes five scales. The effect
 is measurable: the prevalence baseline — a constant per fold, which *must* score chance — comes out
@@ -302,6 +347,8 @@ chance control pinned at 0.500 so the three cannot silently drift apart.
 
 ## 9 · Method, in one paragraph
 
+<p align="center"><img src="docs/readme/08-method.gif" alt="Flow from structure resolution to a triage statement, schematic" width="100%"><br><sub>Animated figure A8 — Schematic of the method paragraph below; it is not a data figure.</sub></p>
+
 Structures are resolved from PubChem by CASRN/DSSTox identifier, standardised with RDKit (salts
 stripped, charges neutralised, mixtures and inorganics flagged and excluded rather than coerced).
 Representations are Morgan fingerprints (2048 bits, radius 2), MACCS keys and ten physicochemical
@@ -314,6 +361,8 @@ conformal quantiles and test scores come from the same fitted model. Formal cove
 requires exchangeability; scaffold shift and domain filtering prevent an unconditional guarantee.
 
 ## 10 · Limitations
+
+<p align="center"><img src="docs/readme/09-limitations.gif" alt="Forest plot of ROC AUC with 95 % intervals for four models" width="100%"><br><sub>Animated figure A9 — ROC AUC with 95 % intervals on the pre-declared split. Data: results/evaluation.json.</sub></p>
 
 - **102 chemicals.** Every interval here is wide and the per-fold standard deviation of ROC is
   0.108. This is a small-data problem and is reported as one.
@@ -333,6 +382,61 @@ requires exchangeability; scaffold shift and domain filtering prevent an uncondi
 - **API ablation is exploratory.** Reformulated B/B-prime arms were run after a failed original
   arm despite the no-retry rule. They are kept separate from confirmatory evidence and from the
   SciencePal run. Neither establishes a predictive improvement; see the audit update.
+
+## Real-world applications
+
+<p align="center"><img src="docs/readme/10-applications.gif" alt="Six application cards appearing one after another" width="100%"><br><sub>Animated figure A10 — Potential uses of a triage ranking; none is a safety verdict or a regulatory conclusion.</sub></p>
+
+These are potential uses that follow from what is measured above, not deployments. All of them inherit the limits of
+section 10 and of the cohort the tool was evaluated on.
+
+- **Ordering a microelectrode-array queue.** In the retrospective evaluation half of the selective compounds were
+  found after 32 assays, against 51.5 for a random order. A laboratory with a long list of untested chemicals could
+  use such a ranking to decide what to plate first; the saving on an unselected library is not measured here.
+- **Scheduling in vitro assays.** Section 1 states that the US EPA plans to phase out mammalian testing; a ranking
+  could help with the scheduling bottleneck it describes. This repository measures no animal-use outcome.
+- **Saying what cannot be judged.** Chemicals without a resolvable structure or outside the applicability domain are
+  reported as such, so a laboratory knows which ones need another route instead of receiving a guess.
+- **Auditable shortlists.** Every score ships with its three nearest measured analogues and their outcomes
+  ([`results/agent_package/scores.csv`](results/agent_package/scores.csv)), which lets a reviewer challenge a
+  recommendation.
+- **Agent-assisted triage.** The SciencePal run shows an agent resolving salts and adding literature support to the
+  triage of 20 candidate chemicals; it is one run, and its accuracy was not measured.
+- **A reporting pattern for small screens.** Grouped validation, an exact random baseline, a significance test that
+  refits the pipeline and conformal abstention may be reusable for other small in vitro endpoints.
+
+## Possible improvements
+
+<p align="center"><img src="docs/readme/11-improvements.gif" alt="Limitations on the left turning into proposed next experiments on the right" width="100%"><br><sub>Animated figure A11 — Each proposed step targets a limitation reported in section 10.</sub></p>
+
+- **More chemicals, tighter intervals.** With 102 chemicals the per-fold standard deviation of the read-across ROC is 0.108 and every
+  interval is wide (Animated figure A9). Labelling more of the wider EPA screen of 460, under a frozen protocol,
+  is the most direct way to narrow them; it would not by itself make the second cohort an independent test set.
+- **An unselected library.** The cohort prevalence is 48 % because suspected actives were enriched. Measuring the
+  assay saving on an unselected chemical library would be a different experiment and the honest way to size the
+  benefit.
+- **A prospective plate.** The five recommended chemicals are a falsifiable prediction awaiting one plate
+  ([`ABLATION.md`](results/sciencepal/ABLATION.md)); data from an independent laboratory would also address the
+  "one assay, one laboratory, one developmental window" limit.
+- **More decisive sets.** Conformal sets are uninformative for 63 % of chemicals and 13.7 % fall outside the
+  applicability domain. Calibration and domain definitions could be tested on larger sets, keeping coverage and the
+  right to abstain. Organic salts additionally need an explicitly curated parent structure under the declared policy.
+- **Re-testing the agent claim.** The API ablation arms are exploratory and show no predictive improvement
+  ([audit update](docs/AUDIT_UPDATE_20261025.md)); any new agent comparison should be pre-registered with a no-retry
+  rule.
+
+## Future work
+
+<p align="center"><img src="docs/readme/12-roadmap.gif" alt="Roadmap with three completed milestones and three proposed steps" width="100%"><br><sub>Animated figure A12 — Completed milestones are documented in this repository; the rest are proposals.</sub></p>
+
+Proposed next steps, in order; none is claimed as started:
+
+1. Run the five recommended chemicals on a microelectrode-array plate and compare the outcome with the prediction.
+2. Freeze a protocol and evaluate on an unselected chemical library to measure the real assay saving.
+3. Add independent laboratory data, beyond one assay and one laboratory.
+4. Extend labelling within the wider EPA screen and re-report every interval.
+5. Test calibration and applicability-domain definitions on larger sets, and curate parent structures for common
+   organic salts under the declared policy.
 
 ## Resource declaration
 
@@ -354,3 +458,28 @@ cite Shafer et al. 2019 directly.
 Angulo de Lafuente, F. (2026). DNT-Scout: structure-based triage for developmental
 neurotoxicity screening, with calibrated abstention. https://github.com/Agnuxo1/dnt-scout
 ```
+
+## Bibliography
+
+1. <a id="ref-1"></a>Shafer, T. J., Brown, J. P., Lynch, B., et al. (2019). Evaluation of Chemical Effects on Network Formation in Cortical Neurons Grown on Microelectrode Arrays. *Toxicological Sciences*, 169(2), 436–455. https://doi.org/10.1093/toxsci/kfz052
+2. <a id="ref-2"></a>Shafer, T. (2019). *Data for: Evaluation of Chemical Effects on Network Formation in Cortical Neurons Grown on Microelectrode Arrays*. U.S. EPA Office of Research and Development (ORD). https://doi.org/10.23719/1503191
+3. <a id="ref-3"></a>Johnstone, A. F. M., Gross, G. W., Weiss, D. G., et al. (2010). Microelectrode arrays: A physiologically based neurotoxicity testing platform for the 21st century. *NeuroToxicology*, 31(4), 331–350. https://doi.org/10.1016/j.neuro.2010.04.001
+4. <a id="ref-4"></a>OECD (2007). Test No. 426: Developmental Neurotoxicity Study. *OECD Guidelines for the Testing of Chemicals, Section 4*. https://doi.org/10.1787/9789264067394-en
+5. <a id="ref-5"></a>Bemis, G. W., & Murcko, M. A. (1996). The Properties of Known Drugs. 1. Molecular Frameworks. *Journal of Medicinal Chemistry*, 39(15), 2887–2893. https://doi.org/10.1021/jm9602928
+6. <a id="ref-6"></a>Butina, D. (1999). Unsupervised Data Base Clustering Based on Daylight's Fingerprint and Tanimoto Similarity: A Fast and Automated Way To Cluster Small and Large Data Sets. *Journal of Chemical Information and Computer Sciences*, 39(4), 747–750. https://doi.org/10.1021/ci9803381
+7. <a id="ref-7"></a>Rogers, D., & Hahn, M. (2010). Extended-Connectivity Fingerprints. *Journal of Chemical Information and Modeling*, 50(5), 742–754. https://doi.org/10.1021/ci100050t
+8. <a id="ref-8"></a>Durant, J. L., Leland, B. A., Henry, D. R., & Nourse, J. G. (2002). Reoptimization of MDL Keys for Use in Drug Discovery. *Journal of Chemical Information and Computer Sciences*, 42(6), 1273–1280. https://doi.org/10.1021/ci010132r
+9. <a id="ref-9"></a>Helman, G., Shah, I., Williams, A. J., Edwards, J., Dunne, J., & Patlewicz, G. (2019). Generalized Read-Across (GenRA): A workflow implemented into the EPA CompTox Chemicals Dashboard. *ALTEX*, 36(3), 462–465. https://doi.org/10.14573/altex.1811292
+10. <a id="ref-10"></a>Landrum, G. (n.d.). *RDKit: Open-source cheminformatics software*. https://www.rdkit.org/
+11. <a id="ref-11"></a>Pedregosa, F., Varoquaux, G., Gramfort, A., et al. (2012). Scikit-learn: Machine Learning in Python. *arXiv* 1201.0490. https://arxiv.org/abs/1201.0490
+12. <a id="ref-12"></a>Vovk, V., Gammerman, A., & Shafer, G. (2005). *Algorithmic Learning in a Random World*. Springer. https://doi.org/10.1007/b106715
+13. <a id="ref-13"></a>Vovk, V. (2012). Conditional validity of inductive conformal predictors. *arXiv* 1209.2673. https://arxiv.org/abs/1209.2673
+14. <a id="ref-14"></a>Angelopoulos, A. N., & Bates, S. (2021). A Gentle Introduction to Conformal Prediction and Distribution-Free Uncertainty Quantification. *arXiv* 2107.07511. https://arxiv.org/abs/2107.07511
+15. <a id="ref-15"></a>Ojala, M., & Garriga, G. C. (2010). Permutation tests for studying classifier performance. *Journal of Machine Learning Research*, 11, 1833–1863. https://www.jmlr.org/papers/v11/ojala10a.html
+
+---
+
+<div align="center">
+<sub>Built by <a href="https://github.com/Agnuxo1">Francisco Angulo de Lafuente</a> · every animated figure A1–A12
+renders a published file named in its footer · <a href="#dnt-scout">back to top ↑</a></sub>
+</div>
